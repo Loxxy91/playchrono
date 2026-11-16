@@ -8,6 +8,10 @@
   and the hotbar get dressed too (snow drifts, confetti, painted-egg ribbon, cobwebs and spiders), with falling snow or
   confetti over the page. A button next to light / dark turns the theme off (remembered); the theme switches by
   itself at midnight. `chat.seasonal=false` turns the chat message off.
+- **Smoother dashboard**: Minecraft-style scrollbar (recessed slot, stone thumb), tabs slide in from the side of the
+  hotbar move, boxes rise in as they scroll into view (charts grow at that moment), the header landscape moves with
+  depth, an XP-bar style scroll indicator, and the live refresh no longer replays the animations every minute.
+  Everything stays still when the system asks for less motion.
 - Fix: the playtime milestone was repeated every 5 minutes once crossed.
 - The browser now picks up the new tab icon.
 

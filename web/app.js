@@ -199,12 +199,18 @@
   const TABS = ['overview', 'schedule', 'activity', 'places', 'versions', 'world', 'inputs', 'perf', 'leaderboard'];
   const TAB_ICON = { overview: 'grass', schedule: 'clock', activity: 'chest', places: 'globe', versions: 'book', world: 'compass', inputs: 'key', perf: 'torch', leaderboard: 'trophy' };
 
-  function renderTab() {
+  /**
+   * Draws the current tab. quiet = live refresh: no animation at all (the page used to replay its entrance every
+   * minute). Otherwise boxes below the fold appear as they scroll into view.
+   */
+  function renderTab(quiet) {
     renderers = [];
     cardIndex = 0;
     renderSeq++;
     const main = $('#main');
+    main.classList.toggle('quiet', !!quiet);
     main.innerHTML = '';
+    if (!quiet) requestAnimationFrame(() => revealOnScroll(main));
     if (tab === 'leaderboard') { leaderboard(main); return; }
     if (!D || !Object.keys(D.days || {}).length) { C.empty(main, t('ui.empty')); return; }
     const list = inPeriod();
@@ -216,6 +222,71 @@
       main.appendChild(n);
     }
     ({ overview, schedule, activity, places, versions, world, inputs, perf }[tab] || overview)(main, list);
+  }
+
+  // ---------------------------------------------------------------------------------------------- motion
+  const motionOff = () => reduceMotion.matches || document.documentElement.classList.contains('no-anim');
+  let revealIO = null;
+  /** Boxes that start below the screen fade and rise in when they arrive; their charts grow at that moment. */
+  function revealOnScroll(main) {
+    if (revealIO) revealIO.disconnect();
+    if (motionOff() || !('IntersectionObserver' in window)) return;
+    const items = [...main.querySelectorAll('.card, .tiles, .note')].filter((el) => el.getBoundingClientRect().top > window.innerHeight - 20);
+    if (!items.length) return;
+    items.forEach((el) => el.classList.add('reveal'));
+    revealIO = new IntersectionObserver((entries) => {
+      const shown = entries.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top || a.boundingClientRect.left - b.boundingClientRect.left);
+      shown.forEach((e, i) => {
+        e.target.style.setProperty('--rd', `${Math.min(i, 5) * 70}ms`);
+        e.target.classList.add('in');
+        revealIO.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    items.forEach((el) => revealIO.observe(el));
+  }
+  /** Tab change: the old page slides out, the new one slides in from the side of the hotbar move. */
+  let switching = 0;
+  function switchTab(next) {
+    const main = $('#main');
+    const from = TABS.indexOf(tab), to = TABS.indexOf(next);
+    tab = next;
+    const dir = to >= from ? 1 : -1;
+    const seq = ++switching;
+    const draw = () => {
+      if (seq !== switching) return;
+      main.classList.remove('page-out');
+      shell();
+      main.style.setProperty('--dir', dir);
+      main.classList.remove('page-in');
+      void main.offsetWidth; // restart the animation
+      main.classList.add('page-in');
+      const heroBottom = $('.hero').offsetHeight - 40;
+      if (window.scrollY > heroBottom) window.scrollTo({ top: Math.max(0, heroBottom - 20), behavior: motionOff() ? 'auto' : 'smooth' });
+    };
+    if (motionOff() || !main.children.length) { draw(); return; }
+    main.style.setProperty('--dir', dir);
+    main.classList.remove('page-in');
+    main.classList.add('page-out');
+    setTimeout(draw, 150);
+  }
+  /** Header depth on scroll + the XP-bar style scroll indicator. One rAF per frame at most. */
+  function scrollEffects() {
+    let pending = false;
+    const land = $('#land'), clouds = $('#clouds'), fx = $('#fx'), bar = $('#scrollxp');
+    const update = () => {
+      pending = false;
+      const y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.classList.toggle('on', max > 200 && y > 4);
+      bar.firstChild.style.width = (max > 0 ? Math.min(100, (y / max) * 100) : 0) + '%';
+      if (motionOff()) { land.style.translate = clouds.style.translate = fx.style.translate = ''; return; }
+      const py = Math.min(y, 400); // the header is out of sight beyond that
+      land.style.translate = `0 ${(py * 0.35).toFixed(1)}px`;
+      clouds.style.translate = `0 ${(py * 0.18).toFixed(1)}px`;
+      fx.style.translate = `0 ${(py * 0.25).toFixed(1)}px`;
+    };
+    window.addEventListener('scroll', () => { if (!pending) { pending = true; requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
   }
 
   // ---------------------------------------------------------------------------------------------- overview
@@ -1040,7 +1111,11 @@
       if (n >= 1 && n <= TABS.length) go(n - 1);
     });
     $('#hotbar').addEventListener('wheel', (e) => { e.preventDefault(); go(TABS.indexOf(tab) + (e.deltaY > 0 ? 1 : -1)); }, { passive: false });
-    window.addEventListener('hashchange', () => { tab = location.hash.slice(1) || 'overview'; shell(); });
+    window.addEventListener('hashchange', () => {
+      const next = location.hash.slice(1) || 'overview';
+      if (next !== tab) switchTab(TABS.includes(next) ? next : 'overview');
+    });
+    scrollEffects();
     let rt;
     window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { drawLandscape(); renderers.forEach((r) => r()); }, 150); });
     matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => renderers.forEach((r) => r()));
@@ -1048,7 +1123,7 @@
     if (location.protocol.startsWith('http')) setInterval(async () => { // live refresh
       if (document.hidden) return;
       if (tab === 'leaderboard') return; // keep the board stable while reading it
-      try { D = await api('api/data.json'); renderTab(); $('#generated').textContent = t('ui.generated', { d: dateFmt(D.generated, { dateStyle: 'medium', timeStyle: 'short' }) }); } catch (e) { /* game closed */ }
+      try { D = await api('api/data.json'); renderTab(true); $('#generated').textContent = t('ui.generated', { d: dateFmt(D.generated, { dateStyle: 'medium', timeStyle: 'short' }) }); } catch (e) { /* game closed */ }
     }, 60000);
   });
 })();

@@ -21,6 +21,7 @@
   --cell-empty: rgba(43, 39, 33, .07); --on-seq-high: #ffffff;
   --xp: #7ee03a; --xp-dark: #2d5d12;
   --px: 3px;
+  --sb-track: #c9c1b0; --sb-track-lo: #8f8879; --sb-track-hi: #e9e3d6;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -30,7 +31,7 @@
     --slot: #1b1c21; --slot-hi: #34363d; --slot-lo: #08090b;
     --ink: #f1efe8; --ink2: #c4c0b4; --muted: #9b978c;
     --surface: #25272d; --grid: rgba(255, 255, 255, .07); --axis: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .10);
-    --accent: #5fbf3f; --accent-ink: #0d1a08;
+    --sb-track: #1c1e23; --sb-track-lo: #0c0d10; --sb-track-hi: #34373e; --accent: #5fbf3f; --accent-ink: #0d1a08;
     --s1: #4fa833; --s2: #3a82dc; --s3: #c08600; --s4: #a86ad6; --s5: #d9553c; --s6: #1fa293;
     --seq: #1f2b1b, #2c4a22, #3c6a2a, #4f8c33, #68ad40, #8fcb63, #b9e48f;
     --cell-empty: rgba(255, 255, 255, .06); --on-seq-high: #0b0b0b;
@@ -43,7 +44,7 @@
   --slot: #1b1c21; --slot-hi: #34363d; --slot-lo: #08090b;
   --ink: #f1efe8; --ink2: #c4c0b4; --muted: #9b978c;
   --surface: #25272d; --grid: rgba(255, 255, 255, .07); --axis: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .10);
-  --accent: #5fbf3f; --accent-ink: #0d1a08;
+  --sb-track: #1c1e23; --sb-track-lo: #0c0d10; --sb-track-hi: #34373e; --accent: #5fbf3f; --accent-ink: #0d1a08;
   --s1: #4fa833; --s2: #3a82dc; --s3: #c08600; --s4: #a86ad6; --s5: #d9553c; --s6: #1fa293;
   --seq: #1f2b1b, #2c4a22, #3c6a2a, #4f8c33, #68ad40, #8fcb63, #b9e48f;
   --cell-empty: rgba(255, 255, 255, .06); --on-seq-high: #0b0b0b;
@@ -349,3 +350,43 @@ tbody tr:hover { background: var(--cell-empty); }
 /* seasonal-theme switch next to light / dark */
 #seasonBtn[hidden] { display: none; }
 #seasonBtn.off svg { filter: grayscale(1) opacity(.55); }
+
+/* ---------------------------------------------------------------- scrollbar: a recessed slot and a stone button */
+/* Firefox only: in Chrome/Edge, setting scrollbar-color would switch off the ::-webkit-scrollbar styling below */
+@supports (-moz-appearance: none) { html { scrollbar-color: #8b8b8b var(--sb-track); } }
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--sb-track); box-shadow: inset 3px 3px 0 var(--sb-track-lo), inset -3px -3px 0 var(--sb-track-hi); }
+::-webkit-scrollbar-thumb { background: #8b8b8b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5' width='8' height='10' shape-rendering='crispEdges'%3E%3Cpath fill='%233d3d3d' d='M0 0h4v1h-4zM0 2h4v1h-4zM0 4h4v1h-4z'/%3E%3C/svg%3E") center / 8px 10px no-repeat; border: 2px solid #000; min-height: 48px;
+  box-shadow: inset 2px 2px 0 #c6c6c6, inset -2px -3px 0 #555555; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--accent); box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .4), inset -2px -3px 0 rgba(0, 0, 0, .35); }
+::-webkit-scrollbar-thumb:active { background-color: #6d6d6d; box-shadow: inset 2px 2px 0 #555555, inset -2px -2px 0 #9a9a9a; }
+::-webkit-scrollbar-corner { background: var(--sb-track); }
+::-webkit-scrollbar-button { display: none; }
+.tbl-wrap::-webkit-scrollbar, .sv-block .tbl-wrap::-webkit-scrollbar { width: 12px; height: 12px; }
+.tbl-wrap::-webkit-scrollbar-thumb { background-size: 6px 8px; min-height: 32px; }
+
+/* ---------------------------------------------------------------- page changes */
+main.page-out { animation: page-out .15s ease-in both; pointer-events: none; }
+main.page-in { animation: page-in .42s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes page-out { to { opacity: 0; transform: translateX(calc(var(--dir, 1) * -26px)); } }
+@keyframes page-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 34px)); } }
+main.quiet .card, main.quiet .tile, main.quiet .pp-grow, main.quiet .pp-fade, main.quiet li { animation: none !important; }
+nav#hotbar a.on .px { animation: slot-pop .38s cubic-bezier(.3, 1.6, .5, 1); }
+nav#hotbar a.on::after { animation: slot-frame .25s ease-out; }
+@keyframes slot-pop { 0% { transform: scale(.7); } 60% { transform: translateY(-4px) scale(1.12); } 100% { transform: none; } }
+@keyframes slot-frame { from { opacity: 0; transform: scale(1.18); } }
+
+/* ---------------------------------------------------------------- scrolling: boxes appear as they come into view */
+.reveal { opacity: 0; transform: translateY(30px) scale(.985); animation: none !important;
+  transition: opacity .5s ease var(--rd, 0ms), transform .65s cubic-bezier(.2, .8, .2, 1) var(--rd, 0ms); }
+.reveal * { animation-play-state: paused !important; }
+.reveal.in { opacity: 1; transform: none; }
+.reveal.in * { animation-play-state: running !important; }
+html { scroll-behavior: smooth; }
+#scrollxp { position: fixed; left: 0; right: 0; top: 0; height: 5px; z-index: 30; background: rgba(0, 0, 0, .55); pointer-events: none;
+  opacity: 0; transition: opacity .25s; }
+#scrollxp.on { opacity: 1; }
+#scrollxp i { display: block; height: 100%; width: 0; background: var(--xp); box-shadow: inset 0 -2px 0 var(--xp-dark);
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(0, 0, 0, .35) calc(10% - 2px) 10%); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1 !important; transform: none !important; } }
+.no-anim .reveal { opacity: 1 !important; transform: none !important; }
