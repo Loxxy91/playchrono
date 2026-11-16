@@ -112,6 +112,8 @@ public final class Config {
         Object th = m.get("theme"), kb = m.get("keyboard");
         if ("auto".equals(th) || "light".equals(th) || "dark".equals(th)) set("dashboard.theme", (String) th);
         if ("auto".equals(kb) || "qwerty".equals(kb) || "azerty".equals(kb)) set("dashboard.keyboard", (String) kb);
+        Object se = m.get("seasonal");
+        if ("true".equals(se) || "false".equals(se)) set("dashboard.seasonal", (String) se);
     }
 
     public Map<String, Object> prefs() {

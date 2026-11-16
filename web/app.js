@@ -853,7 +853,7 @@
   // ============================================================================================ preferences
   /** Saved in the browser AND in the mod's config (survives a new port / file vs live page). */
   function savePref(key, value) {
-    store.set(key === 'theme' ? 'theme' : 'kb', value);
+    store.set({ theme: 'theme', keyboard: 'kb', seasonal: 'seasonal' }[key] || key, value);
     if (!location.protocol.startsWith('http')) return;
     fetch('api/prefs', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-PlayChrono': '1' }, body: JSON.stringify({ [key]: value }) }).catch(() => {});
   }
@@ -887,7 +887,9 @@
     $('#subtitle').textContent = t('ui.subtitle');
     const gen = D && D.generated ? t('ui.generated', { d: dateFmt(D.generated, { dateStyle: 'medium', timeStyle: 'short' }) }) : '';
     $('#generated').textContent = gen;
-    seasonNote(currentSeason());
+    appliedSeason = currentSeason();
+    seasonNote(appliedSeason);
+    seasonButton();
     const meName = D && D.env && D.env.acct, meId = D && D.env && D.env.uuid;
     const me = $('#me');
     if (meName) {
@@ -931,11 +933,40 @@
   // ============================================================================================ seasons
   const SEASONS = ['xmas', 'newyear', 'easter', 'halloween'];
   /** Christmas, New Year, Easter, Halloween: from the local date, every year (?season=xmas|...|none to preview). */
-  function currentSeason() {
+  /** The event of today's local date (or the ?season= preview), whether or not the player turned themes off. */
+  function dateSeason() {
     const q = new URLSearchParams(location.search).get('season');
     if (q) return SEASONS.includes(q) ? q : null;
-    if (D && D.prefs && D.prefs.seasonal === 'false') return null;
     return PI.season(new Date());
+  }
+  /** On unless the player switched it off (button next to light / dark, saved in the browser and in the mod). */
+  function seasonOn() {
+    const s = store.get('seasonal', '');
+    if (s === 'true' || s === 'false') return s === 'true';
+    return !(D && D.prefs && D.prefs.seasonal === 'false');
+  }
+  function currentSeason() { return seasonOn() ? dateSeason() : null; }
+  function seasonButton() {
+    const s = dateSeason(), b = $('#seasonBtn');
+    if (!s) { b.hidden = true; return; } // nothing to switch outside the events
+    const on = seasonOn();
+    b.hidden = false;
+    b.innerHTML = PI.svg(PI.seasonIcon(s), 22);
+    b.classList.toggle('off', !on);
+    b.setAttribute('aria-pressed', String(on));
+    b.title = t(on ? 'season.btnOn' : 'season.btnOff');
+    b.setAttribute('aria-label', b.title);
+  }
+  let appliedSeason;
+  /** Applies the theme of the day; called at start, on the switch, and every minute (midnight on 29 Dec -> New Year). */
+  function applySeason(force) {
+    seasonButton();
+    const s = currentSeason();
+    if (!force && s === appliedSeason) return;
+    appliedSeason = s;
+    landKey = '';
+    drawLandscape();
+    seasonNote(s);
   }
   function seasonNote(s) {
     const box = $('#season');
@@ -996,6 +1027,12 @@
       drawLandscape();
       renderers.forEach((r) => r());
     });
+    $('#seasonBtn').addEventListener('click', () => {
+      savePref('seasonal', String(!seasonOn()));
+      applySeason(true);
+      renderers.forEach((r) => r());
+    });
+    setInterval(() => applySeason(false), 60000);
     // hotbar: keys 1-9 and the mouse wheel, like in game
     document.addEventListener('keydown', (e) => {
       if (e.ctrlKey || e.altKey || e.metaKey || /input|select|textarea/i.test(e.target.tagName)) return;

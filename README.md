@@ -41,7 +41,8 @@
   smooth animations, day and night themes, 10 languages, live refresh while you play.
 - **An online leaderboard** (opt-in, Mojang-verified) to compare with every player, and your own stats always work offline.
 - **Private by default.** Your stats stay on your computer. Only if you join the leaderboard are your name and totals published.
-- **Seasonal themes.** Snow at Christmas, fireworks for the New Year, eggs at Easter, pumpkins at Halloween, every year.
+- **Seasonal themes.** Snow at Christmas, fireworks for the New Year, eggs at Easter, pumpkins at Halloween, every year,
+  on the header and on every panel. One click next to light / dark turns them off.
 - **Your face on it.** Your Minecraft name and head are shown in the top-right corner of the dashboard.
 - **Zero impact on your game.** No mixins and no code injection: a read-only probe plus background bookkeeping.
 
