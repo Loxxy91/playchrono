@@ -41,6 +41,7 @@
   smooth animations, day and night themes, 10 languages, live refresh while you play.
 - **An online leaderboard** (opt-in, Mojang-verified) to compare with every player, and your own stats always work offline.
 - **Private by default.** Your stats stay on your computer. Only if you join the leaderboard are your name and totals published.
+- **Seasonal themes.** Snow at Christmas, fireworks for the New Year, eggs at Easter, pumpkins at Halloween, every year.
 - **Your face on it.** Your Minecraft name and head are shown in the top-right corner of the dashboard.
 - **Zero impact on your game.** No mixins and no code injection: a read-only probe plus background bookkeeping.
 
@@ -138,6 +139,8 @@ deaths, highest altitude, farthest point, top speed, XP levels and messages.
 | `chat.milestones` | `true` | A message every 10 hours of play |
 | `chat.afkReturn` | `false` | A message when you come back from a long AFK |
 | `chat.breakReminderMinutes` | `0` | Break reminder after N minutes of continuous play |
+| `dashboard.seasonal` | `true` | Christmas (10-29 Dec), New Year (30 Dec-2 Jan), Easter (Easter Sunday) and Halloween (10 Oct-2 Nov) themes |
+| `chat.seasonal` | `true` | A friendly message in chat once per event, with the daily summary |
 | `dashboard.skin` | `true` | Show your own head (skin downloaded from Mojang once a day) |
 | `leaderboard.enabled` | `false` | Opt-in to the online leaderboard (also a button in the dashboard) |
 | `import.logs` | `false` | Adds an *estimate* of past playtime rebuilt from the game's logs |

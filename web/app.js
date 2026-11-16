@@ -887,6 +887,7 @@
     $('#subtitle').textContent = t('ui.subtitle');
     const gen = D && D.generated ? t('ui.generated', { d: dateFmt(D.generated, { dateStyle: 'medium', timeStyle: 'short' }) }) : '';
     $('#generated').textContent = gen;
+    seasonNote(currentSeason());
     const meName = D && D.env && D.env.acct, meId = D && D.env && D.env.uuid;
     const me = $('#me');
     if (meName) {
@@ -927,14 +928,39 @@
     labelTimer = setTimeout(() => l.classList.remove('show'), 1600);
   }
   let landKey = '';
+  // ============================================================================================ seasons
+  const SEASONS = ['xmas', 'newyear', 'easter', 'halloween'];
+  /** Christmas, New Year, Easter, Halloween: from the local date, every year (?season=xmas|...|none to preview). */
+  function currentSeason() {
+    const q = new URLSearchParams(location.search).get('season');
+    if (q) return SEASONS.includes(q) ? q : null;
+    if (D && D.prefs && D.prefs.seasonal === 'false') return null;
+    return PI.season(new Date());
+  }
+  function seasonNote(s) {
+    const box = $('#season');
+    const now = new Date();
+    const year = now.getMonth() === 0 ? now.getFullYear() : now.getFullYear() + (s === 'newyear' ? 1 : 0);
+    const id = s + '-' + (now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear()); // one event = one id, Jan 1-2 included
+    if (!s || store.get('seasonHide', '') === id) { box.hidden = true; return; }
+    box.innerHTML = `${PI.svg(PI.seasonIcon(s), 28)}<span>${esc(t('season.' + s, { y: year }))}</span>`
+      + `<button type="button" class="mc-btn sm" aria-label="${esc(t('season.hide'))}">✕</button>`;
+    $('button', box).addEventListener('click', () => { store.set('seasonHide', id); box.hidden = true; });
+    box.hidden = false;
+  }
+
   function drawLandscape() {
     const night = document.documentElement.dataset.theme ? document.documentElement.dataset.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
     const cols = Math.max(80, Math.min(240, Math.round(window.innerWidth / 10)));
-    const key = cols + (night ? 'n' : 'd');
+    const season = currentSeason();
+    const key = cols + (night ? 'n' : 'd') + (season || '');
     if (key === landKey) return;
     landKey = key;
-    $('#land').innerHTML = PI.landscape(cols, night);
-    $('#clouds').innerHTML = PI.clouds(cols, night) + PI.clouds(cols, night);
+    if (season) document.documentElement.dataset.season = season; else delete document.documentElement.dataset.season;
+    $('#land').innerHTML = PI.landscape(cols, night, season);
+    $('#fx').innerHTML = PI.fx(cols, season);
+    const cn = night || season === 'newyear'; // the New Year sky is always a night sky
+    $('#clouds').innerHTML = PI.clouds(cols, cn) + PI.clouds(cols, cn);
     $('#theme').textContent = night ? '☾' : '☀';
   }
   function go(i) {

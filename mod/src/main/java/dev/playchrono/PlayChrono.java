@@ -8,6 +8,7 @@ import dev.playchrono.store.Aggregator;
 import dev.playchrono.store.Compactor;
 import dev.playchrono.store.EventLog;
 import dev.playchrono.store.Signer;
+import dev.playchrono.util.Season;
 import dev.playchrono.util.Secure;
 import dev.playchrono.store.LogImporter;
 import dev.playchrono.track.Tracker;
@@ -248,14 +249,27 @@ public final class PlayChrono implements Tracker.Listener {
             String hk = cfg.str("dashboard.hotkey");
             a = new Object[]{args[0], args[1], "none".equalsIgnoreCase(hk) ? "/" : hk};
             state.put("welcomeDay", LocalDate.now().toString());
+            chatQueue.add(Lang.get(lang, key, a)); // welcome first, then the one-time extras
             if (!leaderboard.enabled() && !leaderboard.url().isEmpty() && state.str("lbInvited") == null) {
                 state.put("lbInvited", "1");
-                chatQueue.add(Lang.get(lang, key, a)); // welcome first, then the one-time invite
                 chatQueue.add(Lang.get(lang, "lbInvite", a[2]));
-                return;
             }
+            seasonGreeting();
+            return;
         }
         chatQueue.add(Lang.get(lang, key, a));
+    }
+
+    /** Once per event and per year (Christmas, New Year, Easter, Halloween), right after the daily summary. */
+    private void seasonGreeting() {
+        if (!cfg.bool("chat.seasonal")) return;
+        LocalDate today = LocalDate.now();
+        String s = Season.of(today);
+        if (s == null) return;
+        String id = Season.eventId(s, today);
+        if (id.equals(state.str("seasonSaid"))) return;
+        state.put("seasonSaid", id);
+        chatQueue.add(Lang.get(lang, "season." + s, String.valueOf(Season.greetingYear(today)))); // String: no "2,027"
     }
 
     @Override

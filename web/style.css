@@ -160,7 +160,13 @@ main { width: min(1240px, calc(100% - 32px)); margin: -46px auto 0; padding: 0 0
 .muted { color: var(--ink2); margin: 6px 0; }
 @media (max-width: 980px) { .card, .card.wide { grid-column: 1 / -1; } }
 @media (max-width: 620px) {
-  .hero { height: 220px; }
+  .hero { height: auto; min-height: 220px; padding-bottom: 58px; }
+  .season-note { font-size: 13px; }
+  .controls { width: 100%; flex-wrap: nowrap; }
+  .controls select { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 24px; background-position: right 7px center; }
+  .controls .icon-btn { flex: none; }
+  .me-chip { flex: none; padding-right: 8px; }
+  .me-name { max-width: 64px; }
   .brand h1 { font-size: 30px; }
   main { width: calc(100% - 20px); }
   #generated { display: none; }
@@ -288,3 +294,23 @@ tbody tr:hover { background: var(--cell-empty); }
 .sv-block.wide { grid-column: 1 / -1; }
 .sv-block h4 { margin: 0 0 8px; font: 500 14px "Pixel", monospace; color: var(--ink); }
 .sv-block .tbl-wrap { max-height: 300px; }
+
+/* ---------------------------------------------------------------- seasonal themes (see icons.js season()) */
+.hero .fx { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.hero .fx svg { width: 100%; height: 100%; display: block; }
+.hero .fx .fx-snow { height: 200%; animation: snowfall 40s linear infinite; transform: translateY(-50%); }
+@keyframes snowfall { to { transform: translateY(0); } }
+.hero .fx .fw { transform-box: fill-box; transform-origin: center; animation: firework 5.4s ease-out infinite backwards; } /* static (visible) when motion is off */
+@keyframes firework { 0%, 100% { opacity: 0; transform: scale(.3); } 8% { opacity: 1; transform: scale(1); } 30% { opacity: 0; transform: scale(1.15); } }
+.hero .fx .bat { animation: bat 28s linear infinite; }
+@keyframes bat { 0% { transform: translate(-10px, 0); } 25% { transform: translate(14px, -1px); } 50% { transform: translate(38px, 1px); } 75% { transform: translate(62px, -1px); } 100% { transform: translate(86px, 0); } }
+.season-note { box-sizing: border-box; min-width: 0; flex-basis: 100%; display: flex; gap: 10px; align-items: center; max-width: 640px; padding: 5px 6px 5px 10px; color: #fff;
+  background: rgba(0, 0, 0, .5); border: 2px solid #000; box-shadow: inset 0 0 0 2px var(--accent); font-weight: 600; font-size: 14px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, .6); }
+.season-note[hidden] { display: none; }
+.season-note span { flex: 1; }
+.season-note svg { flex: none; }
+:root[data-season="xmas"] { --accent: #c62f20; --accent-ink: #ffffff; }
+:root[data-season="newyear"] { --accent: #c9a227; --accent-ink: #1a1300; }
+:root[data-season="easter"] { --accent: #e070a8; --accent-ink: #ffffff; }
+:root[data-season="halloween"] { --accent: #e07428; --accent-ink: #1a0d00; }

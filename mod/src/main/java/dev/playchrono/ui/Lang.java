@@ -74,6 +74,46 @@ public final class Lang {
     }
 
     static {
+        T.get("en").put("season.xmas", "Merry Christmas! May your chests be full of diamonds this year.");
+        T.get("en").put("season.newyear", "Happy New Year {0}! Here''s to a year of legendary adventures.");
+        T.get("en").put("season.easter", "Happy Easter! Keep your eyes open: some eggs are hiding in the hills.");
+        T.get("en").put("season.halloween", "Happy Halloween! Carve a pumpkin and beware of creepers in costume.");
+        T.get("fr").put("season.xmas", "Joyeux Noël ! Que tes coffres débordent de diamants cette année.");
+        T.get("fr").put("season.newyear", "Bonne année {0} ! Qu''elle soit pleine d''aventures légendaires.");
+        T.get("fr").put("season.easter", "Joyeuses Pâques ! Ouvre l''œil : des œufs se cachent dans les collines.");
+        T.get("fr").put("season.halloween", "Joyeux Halloween ! Sculpte une citrouille et méfie-toi des creepers déguisés.");
+        T.get("es").put("season.xmas", "¡Feliz Navidad! Que tus cofres rebosen de diamantes este año.");
+        T.get("es").put("season.newyear", "¡Feliz Año Nuevo {0}! Que sea un año de aventuras legendarias.");
+        T.get("es").put("season.easter", "¡Felices Pascuas! Atento: hay huevos escondidos en las colinas.");
+        T.get("es").put("season.halloween", "¡Feliz Halloween! Talla una calabaza y cuidado con los creepers disfrazados.");
+        T.get("de").put("season.xmas", "Frohe Weihnachten! Mögen deine Truhen dieses Jahr voller Diamanten sein.");
+        T.get("de").put("season.newyear", "Frohes neues Jahr {0}! Auf ein Jahr voller legendärer Abenteuer.");
+        T.get("de").put("season.easter", "Frohe Ostern! Halte die Augen offen: In den Hügeln verstecken sich Eier.");
+        T.get("de").put("season.halloween", "Fröhliches Halloween! Schnitz einen Kürbis und hüte dich vor verkleideten Creepern.");
+        T.get("it").put("season.xmas", "Buon Natale! Che i tuoi bauli trabocchino di diamanti quest''anno.");
+        T.get("it").put("season.newyear", "Felice anno nuovo {0}! Che sia un anno di avventure leggendarie.");
+        T.get("it").put("season.easter", "Buona Pasqua! Occhi aperti: tra le colline si nascondono delle uova.");
+        T.get("it").put("season.halloween", "Buon Halloween! Intaglia una zucca e attento ai creeper travestiti.");
+        T.get("pt").put("season.xmas", "Feliz Natal! Que seus baús transbordem de diamantes este ano.");
+        T.get("pt").put("season.newyear", "Feliz Ano Novo {0}! Que seja um ano de aventuras lendárias.");
+        T.get("pt").put("season.easter", "Feliz Páscoa! Fique de olho: há ovos escondidos nas colinas.");
+        T.get("pt").put("season.halloween", "Feliz Halloween! Esculpa uma abóbora e cuidado com os creepers fantasiados.");
+        T.get("pl").put("season.xmas", "Wesołych Świąt! Niech twoje skrzynie będą pełne diamentów.");
+        T.get("pl").put("season.newyear", "Szczęśliwego Nowego Roku {0}! Niech to będzie rok legendarnych przygód.");
+        T.get("pl").put("season.easter", "Wesołej Wielkanocy! Wypatruj jajek ukrytych na wzgórzach.");
+        T.get("pl").put("season.halloween", "Wesołego Halloween! Wyrzeźb dynię i uważaj na przebrane creepery.");
+        T.get("ru").put("season.xmas", "С Рождеством! Пусть ваши сундуки ломятся от алмазов.");
+        T.get("ru").put("season.newyear", "С Новым {0} годом! Пусть он будет полон легендарных приключений.");
+        T.get("ru").put("season.easter", "Со Светлой Пасхой! Присмотритесь: в холмах спрятаны яйца.");
+        T.get("ru").put("season.halloween", "Счастливого Хэллоуина! Вырежьте тыкву и берегитесь переодетых криперов.");
+        T.get("zh").put("season.xmas", "圣诞快乐！愿你的箱子装满钻石。");
+        T.get("zh").put("season.newyear", "{0} 新年快乐！愿新的一年充满传奇冒险。");
+        T.get("zh").put("season.easter", "复活节快乐！睁大眼睛：山丘里藏着彩蛋。");
+        T.get("zh").put("season.halloween", "万圣节快乐！雕个南瓜，小心乔装的苦力怕。");
+        T.get("ja").put("season.xmas", "メリークリスマス！チェストがダイヤモンドでいっぱいになりますように。");
+        T.get("ja").put("season.newyear", "あけましておめでとう、{0}年！伝説の冒険に満ちた一年に。");
+        T.get("ja").put("season.easter", "ハッピーイースター！丘のどこかにタマゴが隠れているかも。");
+        T.get("ja").put("season.halloween", "ハッピーハロウィン！カボチャを彫って、仮装したクリーパーに気をつけて。");
         T.get("en").put("lbInvite", "New: an online leaderboard! Press {0} > Leaderboard to join (optional).");
         T.get("fr").put("lbInvite", "Nouveau : un classement en ligne ! Appuie sur {0} > Classement pour participer (facultatif).");
         T.get("es").put("lbInvite", "¡Nuevo: una clasificación en línea! Pulsa {0} > Clasificación para participar (opcional).");

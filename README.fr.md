@@ -89,6 +89,8 @@ actions par minute, morts, altitude max, point le plus éloigné, vitesse max, n
 | `chat.milestones` | `true` | message tous les 10 h de jeu |
 | `chat.afkReturn` | `false` | message au retour d'un long AFK |
 | `chat.breakReminderMinutes` | `0` | rappel de pause après N minutes de jeu continu |
+| `dashboard.seasonal` | `true` | thèmes de Noël (10-29 déc.), du Nouvel An (30 déc.-2 janv.), de Pâques (dimanche de Pâques) et d'Halloween (10 oct.-2 nov.) |
+| `chat.seasonal` | `true` | un petit message dans le chat une fois par fête, avec le résumé du jour |
 | `dashboard.skin` | `true` | affiche ta tête (skin téléchargé chez Mojang une fois par jour) |
 | `leaderboard.enabled` | `false` | participation au classement en ligne (aussi un bouton dans le tableau de bord) |
 | `import.logs` | `false` | `true` = ajoute une estimation de l'historique passé, reconstruite depuis les logs |

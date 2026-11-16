@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- **Seasonal themes**, every year: Christmas (10-29 Dec: snow, baubles, presents), New Year (30 Dec-2 Jan: night sky and
+  fireworks), Easter (Easter Sunday: painted eggs and flowers) and Halloween (10 Oct-2 Nov: dusk sky, autumn trees,
+  pumpkins, bats), each with a message in 10 languages (in the dashboard, and once per event in chat).
+  `dashboard.seasonal=false` / `chat.seasonal=false` turn them off.
+- Fix: the playtime milestone was repeated every 5 minutes once crossed.
+- The browser now picks up the new tab icon.
+
 ## 1.0.0 — first release
 
 - **Playtime, measured honestly**: game open, active and AFK time (5 min idle, reclassified retroactively), 28 screen
