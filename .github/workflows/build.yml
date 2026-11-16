@@ -1,0 +1,26 @@
+name: Build
+
+on:
+  push:
+    branches: [prod, dev]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Build the universal jar
+        working-directory: mod
+        run: java Build.java
+      - name: Time-accounting simulation
+        working-directory: mod
+        run: java -cp build/classes tools/TrackerSimulation.java
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playchrono-jar
+          path: release/*.jar

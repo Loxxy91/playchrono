@@ -1,0 +1,12 @@
+# build output
+mod/build/
+dist/
+release/
+
+# downloaded mappings & game jars (Mojang mappings must not be redistributed)
+tools/mappings/.cache/
+
+__pycache__/
+*.pyc
+.idea/
+

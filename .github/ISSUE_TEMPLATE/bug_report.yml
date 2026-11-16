@@ -1,0 +1,46 @@
+name: Bug report
+description: Something is wrong or a stat looks off
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for the report! The more precise it is, the faster it gets fixed.
+  - type: input
+    id: minecraft
+    attributes:
+      label: Minecraft version
+      placeholder: "1.21.4"
+    validations:
+      required: true
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Loader
+      options: [Fabric, Quilt, Forge, NeoForge]
+    validations:
+      required: true
+  - type: input
+    id: loader_version
+    attributes:
+      label: Loader version
+      placeholder: "0.16.10"
+  - type: input
+    id: playchrono
+    attributes:
+      label: PlayChrono version
+      placeholder: "1.0.0"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected, what you saw. Screenshots of the dashboard are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: PlayChrono log lines
+      description: Lines containing "PlayChrono" from logs/latest.log
+      render: text

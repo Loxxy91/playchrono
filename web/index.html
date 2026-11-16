@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>PlayChrono</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="pixel-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script src="theme.js"></script>
+</head>
+<body>
+  <header class="hero">
+    <div class="land" id="land"></div>
+    <div class="clouds" id="clouds"></div>
+    <div class="hero-inner">
+      <div class="brand">
+        <img src="favicon.svg" alt="">
+        <div><h1>PlayChrono</h1><p id="subtitle"></p></div>
+      </div>
+      <div class="controls">
+        <span id="generated"></span>
+        <select id="period" aria-label="Period"></select>
+        <select id="lang" aria-label="Language"></select>
+        <button id="theme" class="mc-btn icon-btn" type="button" aria-label="Theme">☀</button>
+        <div id="me" class="me-chip" hidden></div>
+      </div>
+    </div>
+  </header>
+  <main id="main"></main>
+  <div class="hb-label" id="hblabel" aria-hidden="true"></div>
+  <nav id="hotbar" aria-label="Sections"></nav>
+  <!-- data.js only exists in the local folder (~/.playchrono/dashboard); over HTTP the data comes from the API -->
+  <script src="data.js" onerror="this.remove()"></script>
+  <script src="i18n.js"></script>
+  <script src="icons.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

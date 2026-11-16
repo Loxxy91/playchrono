@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: Pixel; src: url(pixel-latin.woff2); }
+html, body { margin: 0; background: transparent; }
+.icon { width: 512px; height: 512px; position: relative; overflow: hidden;
+  clip-path: polygon(0 32px, 16px 32px, 16px 16px, 32px 16px, 32px 0, calc(100% - 32px) 0, calc(100% - 32px) 16px, calc(100% - 16px) 16px, calc(100% - 16px) 32px, 100% 32px,
+    100% calc(100% - 32px), calc(100% - 16px) calc(100% - 32px), calc(100% - 16px) calc(100% - 16px), calc(100% - 32px) calc(100% - 16px), calc(100% - 32px) 100%,
+    32px 100%, 32px calc(100% - 16px), 16px calc(100% - 16px), 16px calc(100% - 32px), 0 calc(100% - 32px)); }
+.land { position: absolute; inset: 0; }
+.land svg { width: 100%; height: 100%; display: block; }
+.block { position: absolute; left: 96px; top: 70px; width: 320px; height: 320px; image-rendering: pixelated;
+  filter: drop-shadow(16px 16px 0 rgba(0, 0, 0, .35)); }
+</style></head>
+<body>
+<div class="icon"><div class="land" id="land"></div><img class="block" src="favicon.svg" alt=""></div>
+<script src="icons.js"></script>
+<script>document.getElementById('land').innerHTML = PPIcons.landscape(32, false);</script>
+</body></html>

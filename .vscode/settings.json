@@ -1,0 +1,5 @@
+{
+  "java.project.sourcePaths": ["mod/src/main/java", "mod/src/stubs/java"],
+  "java.project.outputPath": "mod/build/ide",
+  "java.project.referencedLibraries": []
+}
