@@ -12,6 +12,7 @@
   hotbar move, boxes rise in as they scroll into view (charts grow at that moment), the header landscape moves with
   depth, an XP-bar style scroll indicator, and the live refresh no longer replays the animations every minute.
   Everything stays still when the system asks for less motion.
+- Clearer numbers in pixel text: digits now come from Silkscreen (OFL); Pixelify's 5, 6 and 8 looked like S, G and B.
 - Fix: the playtime milestone was repeated every 5 minutes once crossed.
 - The browser now picks up the new tab icon.
 

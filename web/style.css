@@ -7,6 +7,8 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+20AD-20C4, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Pixel"; src: url(pixel-cyrillic.woff2) format("woff2"); font-weight: 400 700; font-display: swap;
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+/* Digits from Silkscreen (OFL): Pixelify's 5 / 8 / 6 look too much like S / B / G. Declared last, so it wins for 0-9. */
+@font-face { font-family: "Pixel"; src: url(pixel-digits.woff2) format("woff2"); font-weight: 400 700; font-display: swap; unicode-range: U+0030-0039; }
 
 :root {
   color-scheme: light;
@@ -150,7 +152,7 @@ main { width: min(1240px, calc(100% - 32px)); margin: -46px auto 0; padding: 0 0
   box-shadow: inset 3px 3px 0 #2c3445, inset -3px -3px 0 #05070b; }
 .hero-tile .lbl { color: #c9d1e0; }
 .hero-tile .sub { color: #aab3c4; }
-.hero-tile .val { font-size: 46px; color: var(--xp); text-shadow: 3px 3px 0 var(--xp-dark); }
+.hero-tile .val { font-size: 46px; letter-spacing: -.07em; color: var(--xp); text-shadow: 3px 3px 0 var(--xp-dark); }
 .hero-tile .slot { background: #0a0d13; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #2c3445; width: 56px; height: 56px; }
 .xp { margin-top: 8px; height: 12px; background: #1b1f12; border: 2px solid #000; position: relative; overflow: hidden; }
 .xp i { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--xp) 0 18px, #5fb82a 18px 20px);
