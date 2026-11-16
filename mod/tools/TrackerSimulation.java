@@ -117,6 +117,29 @@ public class TrackerSimulation {
         Map<String, Object> srv3 = Json.map(Json.map(r3.rollup.get("ctx")).get("server:test.example"));
         check("server details survive compaction", Json.num(srv3.get("v"), 0) == 1 && Json.num(srv3.get("vMax"), 0) == Json.num(srv.get("vMax"), -1)
                 && Json.num(srv3.get("ld"), 0) == 1 && Json.num(srv3.get("first"), 0) == Json.num(srv.get("first"), -1));
+        // ---- the dashboard refreshes the baseline every 5 minutes WITHOUT the live session: the milestone crossed
+        // during the session must not be announced again at each refresh (it used to repeat every 5 minutes)
+        Path dir2 = Files.createTempDirectory("playchrono-sim");
+        EventLog log2 = new EventLog(dir2.resolve("sessions"), wall, dev.playchrono.store.Signer.of(dir2));
+        chat.clear();
+        tr = new Tracker(log2, new Tracker.Listener() {
+            public void chat(String key, Object... args) { chat.add(key); }
+            public void openDashboard() { }
+        }, wall, 300_000, true, true, false, true, true, 0);
+        long base = 9L * 3600_000 + 59 * 60_000;
+        tr.setBaseline(0, base, 3, true);
+        run(120_000, State.PLAY, true, true);                 // crosses 10 h
+        for (int i = 0; i < 6; i++) {                          // six refreshes later, still the same session
+            tr.setBaseline(0, base, 3, true);
+            run(60_000, State.PLAY, true, true);
+        }
+        check("milestone announced once, not repeated after refreshes (" + chat.stream().filter("milestone"::equals).count() + ")",
+                chat.stream().filter("milestone"::equals).count() == 1);
+        tr.setBaseline(0, 19L * 3600_000 + 59 * 60_000, 3, true);  // next game: 19 h 59 played
+        run(120_000, State.PLAY, true, true);
+        check("next milestone (20 h) still announced", chat.stream().filter("milestone"::equals).count() == 2);
+        tr.close(wall);
+        log2.close();
         System.out.println(fails == 0 ? "ALL CHECKS PASSED" : fails + " CHECK(S) FAILED");
         System.exit(fails == 0 ? 0 : 1);
     }
