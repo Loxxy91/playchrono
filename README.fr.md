@@ -36,7 +36,7 @@ chinois, japonais. La langue suit celle du jeu automatiquement.
 
 ## Installation
 
-1. Prends `release/playchrono-1.0.0.jar`.
+1. Prends `release/playchrono-1.1.0.jar`.
 2. Mets-le dans le dossier `mods/` de ton instance (Fabric, Quilt, Forge ou NeoForge, 1.20 → 26.3).
    **Aucune dépendance** : pas besoin de Fabric API.
 3. Lance le jeu. Le tableau de bord se trouve dans `~/.playchrono/dashboard/index.html`
@@ -45,10 +45,10 @@ chinois, japonais. La langue suit celle du jeu automatiquement.
 Sans lancer le jeu, le jar sert aussi d'outil en ligne de commande (Java 17+) :
 
 ```
-java -jar playchrono-1.0.0.jar                  # importe tous tes logs, génère et ouvre le tableau de bord
-java -jar playchrono-1.0.0.jar serve            # tableau de bord en direct sur http://127.0.0.1:47823
-java -jar playchrono-1.0.0.jar import <dossier> # importe un dossier de jeu précis (son sous-dossier logs/)
-java -jar playchrono-1.0.0.jar export stats.json
+java -jar playchrono-1.1.0.jar                  # importe tous tes logs, génère et ouvre le tableau de bord
+java -jar playchrono-1.1.0.jar serve            # tableau de bord en direct sur http://127.0.0.1:47823
+java -jar playchrono-1.1.0.jar import <dossier> # importe un dossier de jeu précis (son sous-dossier logs/)
+java -jar playchrono-1.1.0.jar export stats.json
 ```
 
 ## Classement en ligne

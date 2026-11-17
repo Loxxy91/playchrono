@@ -48,7 +48,7 @@
 
 ## 📥 Installation
 
-1. Download `playchrono-1.0.0.jar` from the [latest release](https://github.com/Loxxy91/playchrono/releases/latest).
+1. Download `playchrono-1.1.0.jar` from the [latest release](https://github.com/Loxxy91/playchrono/releases/latest).
 2. Drop it into the `mods` folder of any Fabric, Quilt, Forge or NeoForge instance (1.20 or newer).
 3. Play, then press <kbd>F8</kbd> to open your dashboard. You can also open
    `~/.playchrono/dashboard/index.html` at any time, even with the game closed.
@@ -152,10 +152,10 @@ deaths, highest altitude, farthest point, top speed, XP levels and messages.
 The jar is also a small CLI (Java 17+), handy to look at your stats without starting the game:
 
 ```bash
-java -jar playchrono-1.0.0.jar                  # build and open the dashboard
-java -jar playchrono-1.0.0.jar serve [port]     # live dashboard on http://127.0.0.1:47823
-java -jar playchrono-1.0.0.jar import <gameDir> # import the logs/ folder of a game directory
-java -jar playchrono-1.0.0.jar export stats.json
+java -jar playchrono-1.1.0.jar                  # build and open the dashboard
+java -jar playchrono-1.1.0.jar serve [port]     # live dashboard on http://127.0.0.1:47823
+java -jar playchrono-1.1.0.jar import <gameDir> # import the logs/ folder of a game directory
+java -jar playchrono-1.1.0.jar export stats.json
 ```
 
 ## 🛠 How it works

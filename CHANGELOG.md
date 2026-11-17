@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.1.0
 
 - **Seasonal themes**, every year: Christmas (10-29 Dec: snow, baubles, presents), New Year (30 Dec-2 Jan: night sky and
   fireworks), Easter (Easter Sunday: painted eggs and flowers) and Halloween (10 Oct-2 Nov: dusk sky, autumn trees,
