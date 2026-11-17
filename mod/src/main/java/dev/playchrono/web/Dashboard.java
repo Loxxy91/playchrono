@@ -20,7 +20,7 @@ import java.util.Map;
  */
 public final class Dashboard {
     public static final String[] ASSETS = {"index.html", "app.js", "charts.js", "i18n.js", "icons.js", "theme.js", "style.css", "favicon.svg",
-            "pixel-latin.woff2", "pixel-latin-ext.woff2", "pixel-cyrillic.woff2", "OFL-PixelifySans.txt"};
+            "pixel-latin.woff2", "pixel-latin-ext.woff2", "pixel-cyrillic.woff2", "pixel-digits.woff2", "OFL-PixelifySans.txt", "OFL-Silkscreen.txt"};
     private final Path dataDir, dir;
     private final String modVersion;
     private volatile String json;

@@ -117,6 +117,49 @@ public class TrackerSimulation {
         Map<String, Object> srv3 = Json.map(Json.map(r3.rollup.get("ctx")).get("server:test.example"));
         check("server details survive compaction", Json.num(srv3.get("v"), 0) == 1 && Json.num(srv3.get("vMax"), 0) == Json.num(srv.get("vMax"), -1)
                 && Json.num(srv3.get("ld"), 0) == 1 && Json.num(srv3.get("first"), 0) == Json.num(srv.get("first"), -1));
+        // ---- the dashboard refreshes the baseline every 5 minutes WITHOUT the live session: the milestone crossed
+        // during the session must not be announced again at each refresh (it used to repeat every 5 minutes)
+        Path dir2 = Files.createTempDirectory("playchrono-sim");
+        EventLog log2 = new EventLog(dir2.resolve("sessions"), wall, dev.playchrono.store.Signer.of(dir2));
+        chat.clear();
+        tr = new Tracker(log2, new Tracker.Listener() {
+            public void chat(String key, Object... args) { chat.add(key); }
+            public void openDashboard() { }
+        }, wall, 300_000, true, true, false, true, true, 0);
+        long base = 9L * 3600_000 + 59 * 60_000;
+        tr.setBaseline(0, base, 3, true);
+        run(120_000, State.PLAY, true, true);                 // crosses 10 h
+        for (int i = 0; i < 6; i++) {                          // six refreshes later, still the same session
+            tr.setBaseline(0, base, 3, true);
+            run(60_000, State.PLAY, true, true);
+        }
+        check("milestone announced once, not repeated after refreshes (" + chat.stream().filter("milestone"::equals).count() + ")",
+                chat.stream().filter("milestone"::equals).count() == 1);
+        tr.setBaseline(0, 19L * 3600_000 + 59 * 60_000, 3, true);  // next game: 19 h 59 played
+        run(120_000, State.PLAY, true, true);
+        check("next milestone (20 h) still announced", chat.stream().filter("milestone"::equals).count() == 2);
+        tr.close(wall);
+        log2.close();
+        // ---- seasonal events, every year
+        int[][] easter = {{2024, 3, 31}, {2025, 4, 20}, {2026, 4, 5}, {2027, 3, 28}, {2028, 4, 16}, {2035, 3, 25}, {2038, 4, 25}};
+        boolean eOk = true;
+        for (int[] e : easter) eOk &= dev.playchrono.util.Season.easter(e[0]).equals(LocalDate.of(e[0], e[1], e[2]));
+        check("Easter dates 2024-2038", eOk);
+        String[][] sc = {{"2026-12-09", null}, {"2026-12-10", "xmas"}, {"2026-12-29", "xmas"}, {"2026-12-30", "newyear"}, {"2027-01-02", "newyear"},
+                {"2027-01-03", null}, {"2026-10-09", null}, {"2026-10-10", "halloween"}, {"2026-11-02", "halloween"}, {"2026-11-03", null},
+                {"2026-04-05", "easter"}, {"2026-04-06", null}};
+        boolean sOk = true;
+        for (String[] sd : sc) sOk &= java.util.Objects.equals(dev.playchrono.util.Season.of(LocalDate.parse(sd[0])), sd[1]);
+        check("season boundaries (Christmas, New Year, Halloween, Easter)", sOk);
+        check("New Year 30 Dec 2026 and 1 Jan 2027 are the same event, wishing 2027",
+                dev.playchrono.util.Season.eventId("newyear", LocalDate.parse("2026-12-30")).equals(dev.playchrono.util.Season.eventId("newyear", LocalDate.parse("2027-01-01")))
+                        && dev.playchrono.util.Season.greetingYear(LocalDate.parse("2026-12-31")) == 2027 && dev.playchrono.util.Season.greetingYear(LocalDate.parse("2027-01-01")) == 2027);
+        boolean lOk = true;
+        for (String l : dev.playchrono.ui.Lang.SUPPORTED) for (String k : new String[]{"xmas", "newyear", "easter", "halloween"}) {
+            String m = dev.playchrono.ui.Lang.get(l, "season." + k, "2027");
+            lOk &= !m.contains("{") && !m.contains("''") && (!k.equals("newyear") || m.contains("2027"));
+        }
+        check("seasonal chat messages in 10 languages (year inserted, apostrophes ok): " + dev.playchrono.ui.Lang.get("fr", "season.easter"), lOk);
         System.out.println(fails == 0 ? "ALL CHECKS PASSED" : fails + " CHECK(S) FAILED");
         System.exit(fails == 0 ? 0 : 1);
     }

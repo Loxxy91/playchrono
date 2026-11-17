@@ -35,6 +35,8 @@ public final class Config {
         def("privacy.keys", "true", "Count key presses per key (keyboard heatmap)");
         def("privacy.serverAddresses", "true", "Store server addresses (false = stores only the server-list name)");
         def("leaderboard.enabled", "false", "OPT-IN: publish your totals (playtime, distance, streaks...) on the online leaderboard under your Minecraft name. Toggle it in the dashboard (F8 > Leaderboard)");
+        def("dashboard.seasonal", "true", "Christmas, New Year, Easter and Halloween decorations in the dashboard");
+        def("chat.seasonal", "true", "A friendly message once per event (Christmas, New Year, Easter, Halloween), with the daily summary");
         def("dashboard.skin", "true", "Download your own skin from Mojang (once a day) to show your head in the dashboard");
         def("leaderboard.url", "", "Leaderboard server. Empty = the official PlayChrono server");
     }
@@ -110,12 +112,15 @@ public final class Config {
         Object th = m.get("theme"), kb = m.get("keyboard");
         if ("auto".equals(th) || "light".equals(th) || "dark".equals(th)) set("dashboard.theme", (String) th);
         if ("auto".equals(kb) || "qwerty".equals(kb) || "azerty".equals(kb)) set("dashboard.keyboard", (String) kb);
+        Object se = m.get("seasonal");
+        if ("true".equals(se) || "false".equals(se)) set("dashboard.seasonal", (String) se);
     }
 
     public Map<String, Object> prefs() {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("theme", str("dashboard.theme"));
         m.put("keyboard", str("dashboard.keyboard"));
+        m.put("seasonal", str("dashboard.seasonal"));
         return m;
     }
 

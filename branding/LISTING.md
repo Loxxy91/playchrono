@@ -24,8 +24,8 @@ Tous les fichiers sont dans `branding/` :
 | Côté serveur | **Non supporté** |
 | Loaders | Fabric, Quilt, Forge, NeoForge |
 | Versions de Minecraft | 1.20 → 26.3 (toutes les releases) |
-| Version du mod | `1.0.0`, canal **Release** |
-| Fichier | `release/playchrono-1.0.0.jar` |
+| Version du mod | `1.1.0`, canal **Release** |
+| Fichier | `release/playchrono-1.1.0.jar` |
 | Code source | `https://github.com/Loxxy91/playchrono` (le dépôt doit être public) |
 | Signalement de bugs | `https://github.com/Loxxy91/playchrono/issues` |
 

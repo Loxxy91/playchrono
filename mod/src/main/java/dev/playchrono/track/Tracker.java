@@ -94,7 +94,10 @@ public final class Tracker {
         this.streakBefore = streak;
         this.welcomed = welcomed || welcomedToday;
         long step = 10L * 3600_000L;
-        this.nextMilestone = (totalActive / step + 1) * step;
+        // Only ever moves forward: the baseline excludes the live session, so after crossing a milestone mid-session
+        // it is still below it, and recomputing from it (every refresh) used to announce the same milestone again.
+        long next = (totalActive / step + 1) * step;
+        this.nextMilestone = nextMilestone == Long.MAX_VALUE ? next : Math.max(nextMilestone, next); // MAX = no baseline yet
     }
 
     public boolean welcomedToday() { return welcomed; }

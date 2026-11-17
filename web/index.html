@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <title>PlayChrono</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=chrono" type="image/svg+xml">
   <link rel="preload" href="pixel-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="style.css">
   <script src="theme.js"></script>
@@ -14,9 +14,10 @@
   <header class="hero">
     <div class="land" id="land"></div>
     <div class="clouds" id="clouds"></div>
+    <div class="fx" id="fx"></div>
     <div class="hero-inner">
       <div class="brand">
-        <img src="favicon.svg" alt="">
+        <img src="favicon.svg?v=chrono" alt="">
         <div><h1>PlayChrono</h1><p id="subtitle"></p></div>
       </div>
       <div class="controls">
@@ -24,13 +25,17 @@
         <select id="period" aria-label="Period"></select>
         <select id="lang" aria-label="Language"></select>
         <button id="theme" class="mc-btn icon-btn" type="button" aria-label="Theme">☀</button>
+        <button id="seasonBtn" class="mc-btn icon-btn" type="button" hidden></button>
         <div id="me" class="me-chip" hidden></div>
       </div>
+      <div class="season-note" id="season" role="status" hidden></div>
     </div>
   </header>
   <main id="main"></main>
   <div class="hb-label" id="hblabel" aria-hidden="true"></div>
   <nav id="hotbar" aria-label="Sections"></nav>
+  <div id="pagefx" aria-hidden="true"></div>
+  <div id="scrollxp" aria-hidden="true"><i></i></div>
   <!-- data.js only exists in the local folder (~/.playchrono/dashboard); over HTTP the data comes from the API -->
   <script src="data.js" onerror="this.remove()"></script>
   <script src="i18n.js"></script>

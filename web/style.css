@@ -7,6 +7,8 @@
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+20A0-20AB, U+20AD-20C4, U+2C60-2C7F, U+A720-A7FF; }
 @font-face { font-family: "Pixel"; src: url(pixel-cyrillic.woff2) format("woff2"); font-weight: 400 700; font-display: swap;
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+/* Digits from Silkscreen (OFL): Pixelify's 5 / 8 / 6 look too much like S / B / G. Declared last, so it wins for 0-9. */
+@font-face { font-family: "Pixel"; src: url(pixel-digits.woff2) format("woff2"); font-weight: 400 700; font-display: swap; unicode-range: U+0030-0039; }
 
 :root {
   color-scheme: light;
@@ -21,6 +23,7 @@
   --cell-empty: rgba(43, 39, 33, .07); --on-seq-high: #ffffff;
   --xp: #7ee03a; --xp-dark: #2d5d12;
   --px: 3px;
+  --sb-track: #c9c1b0; --sb-track-lo: #8f8879; --sb-track-hi: #e9e3d6;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -30,7 +33,7 @@
     --slot: #1b1c21; --slot-hi: #34363d; --slot-lo: #08090b;
     --ink: #f1efe8; --ink2: #c4c0b4; --muted: #9b978c;
     --surface: #25272d; --grid: rgba(255, 255, 255, .07); --axis: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .10);
-    --accent: #5fbf3f; --accent-ink: #0d1a08;
+    --sb-track: #1c1e23; --sb-track-lo: #0c0d10; --sb-track-hi: #34373e; --accent: #5fbf3f; --accent-ink: #0d1a08;
     --s1: #4fa833; --s2: #3a82dc; --s3: #c08600; --s4: #a86ad6; --s5: #d9553c; --s6: #1fa293;
     --seq: #1f2b1b, #2c4a22, #3c6a2a, #4f8c33, #68ad40, #8fcb63, #b9e48f;
     --cell-empty: rgba(255, 255, 255, .06); --on-seq-high: #0b0b0b;
@@ -43,7 +46,7 @@
   --slot: #1b1c21; --slot-hi: #34363d; --slot-lo: #08090b;
   --ink: #f1efe8; --ink2: #c4c0b4; --muted: #9b978c;
   --surface: #25272d; --grid: rgba(255, 255, 255, .07); --axis: rgba(255, 255, 255, .18); --border: rgba(255, 255, 255, .10);
-  --accent: #5fbf3f; --accent-ink: #0d1a08;
+  --sb-track: #1c1e23; --sb-track-lo: #0c0d10; --sb-track-hi: #34373e; --accent: #5fbf3f; --accent-ink: #0d1a08;
   --s1: #4fa833; --s2: #3a82dc; --s3: #c08600; --s4: #a86ad6; --s5: #d9553c; --s6: #1fa293;
   --seq: #1f2b1b, #2c4a22, #3c6a2a, #4f8c33, #68ad40, #8fcb63, #b9e48f;
   --cell-empty: rgba(255, 255, 255, .06); --on-seq-high: #0b0b0b;
@@ -149,7 +152,7 @@ main { width: min(1240px, calc(100% - 32px)); margin: -46px auto 0; padding: 0 0
   box-shadow: inset 3px 3px 0 #2c3445, inset -3px -3px 0 #05070b; }
 .hero-tile .lbl { color: #c9d1e0; }
 .hero-tile .sub { color: #aab3c4; }
-.hero-tile .val { font-size: 46px; color: var(--xp); text-shadow: 3px 3px 0 var(--xp-dark); }
+.hero-tile .val { font-size: 46px; letter-spacing: -.07em; color: var(--xp); text-shadow: 3px 3px 0 var(--xp-dark); }
 .hero-tile .slot { background: #0a0d13; box-shadow: inset 3px 3px 0 #000, inset -3px -3px 0 #2c3445; width: 56px; height: 56px; }
 .xp { margin-top: 8px; height: 12px; background: #1b1f12; border: 2px solid #000; position: relative; overflow: hidden; }
 .xp i { position: absolute; inset: 0 auto 0 0; background: repeating-linear-gradient(90deg, var(--xp) 0 18px, #5fb82a 18px 20px);
@@ -160,7 +163,13 @@ main { width: min(1240px, calc(100% - 32px)); margin: -46px auto 0; padding: 0 0
 .muted { color: var(--ink2); margin: 6px 0; }
 @media (max-width: 980px) { .card, .card.wide { grid-column: 1 / -1; } }
 @media (max-width: 620px) {
-  .hero { height: 220px; }
+  .hero { height: auto; min-height: 220px; padding-bottom: 58px; }
+  .season-note { font-size: 13px; }
+  .controls { width: 100%; flex-wrap: nowrap; }
+  .controls select { flex: 1 1 0; min-width: 0; padding-left: 8px; padding-right: 24px; background-position: right 7px center; }
+  .controls .icon-btn { flex: none; }
+  .me-chip { flex: none; padding-right: 8px; }
+  .me-name { max-width: 64px; }
   .brand h1 { font-size: 30px; }
   main { width: calc(100% - 20px); }
   #generated { display: none; }
@@ -288,3 +297,98 @@ tbody tr:hover { background: var(--cell-empty); }
 .sv-block.wide { grid-column: 1 / -1; }
 .sv-block h4 { margin: 0 0 8px; font: 500 14px "Pixel", monospace; color: var(--ink); }
 .sv-block .tbl-wrap { max-height: 300px; }
+
+/* ---------------------------------------------------------------- seasonal themes (see icons.js season()) */
+.hero .fx { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.hero .fx svg { width: 100%; height: 100%; display: block; }
+.hero .fx .fx-snow { height: 200%; animation: snowfall 40s linear infinite; transform: translateY(-50%); }
+@keyframes snowfall { to { transform: translateY(0); } }
+.hero .fx .fw { transform-box: fill-box; transform-origin: center; animation: firework 5.4s ease-out infinite backwards; } /* static (visible) when motion is off */
+@keyframes firework { 0%, 100% { opacity: 0; transform: scale(.3); } 8% { opacity: 1; transform: scale(1); } 30% { opacity: 0; transform: scale(1.15); } }
+.hero .fx .bat { animation: bat 28s linear infinite; }
+@keyframes bat { 0% { transform: translate(-10px, 0); } 25% { transform: translate(14px, -1px); } 50% { transform: translate(38px, 1px); } 75% { transform: translate(62px, -1px); } 100% { transform: translate(86px, 0); } }
+.season-note { box-sizing: border-box; min-width: 0; flex-basis: 100%; display: flex; gap: 10px; align-items: center; max-width: 640px; padding: 5px 6px 5px 10px; color: #fff;
+  background: rgba(0, 0, 0, .5); border: 2px solid #000; box-shadow: inset 0 0 0 2px var(--accent); font-weight: 600; font-size: 14px;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, .6); }
+.season-note[hidden] { display: none; }
+.season-note span { flex: 1; }
+.season-note svg { flex: none; }
+:root[data-season="xmas"] { --accent: #c62f20; --accent-ink: #ffffff; }
+:root[data-season="newyear"] { --accent: #c9a227; --accent-ink: #1a1300; }
+:root[data-season="easter"] { --accent: #e070a8; --accent-ink: #ffffff; }
+:root[data-season="halloween"] { --accent: #e07428; --accent-ink: #1a0d00; }
+
+/* ---------------------------------------------------------------- seasonal decorations (generated by make_season_css.py) */
+:root[data-season] .tile { position: relative; }
+:root[data-season] .card::before, :root[data-season] .tile::before, :root[data-season] nav#hotbar::before {
+  content: ""; position: absolute; pointer-events: none; z-index: 2; image-rendering: pixelated; }
+/* Christmas: snow on top of every box */
+:root[data-season="xmas"] .card::before, :root[data-season="xmas"] .tile::before, :root[data-season="xmas"] nav#hotbar::before {
+  left: -3px; right: -3px; top: -6px; height: 18px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 6' width='48' height='18' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM0 1h1v1h-1zM1 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM5 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM14 1h1v1h-1zM15 1h1v1h-1zM0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1zM8 2h1v1h-1zM9 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM10 3h1v1h-1zM11 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM1 4h1v1h-1zM2 4h1v1h-1zM6 4h1v1h-1zM7 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1z'/%3E%3Cpath fill='%23cddcee' d='M5 2h1v1h-1zM14 2h1v1h-1zM2 3h1v1h-1zM9 3h1v1h-1zM0 4h1v1h-1zM5 4h1v1h-1zM8 4h1v1h-1zM12 4h1v1h-1zM15 4h1v1h-1zM1 5h1v1h-1zM6 5h1v1h-1zM13 5h1v1h-1z'/%3E%3C/svg%3E") repeat-x 0 0 / 48px 18px; }
+:root[data-season="xmas"] .card { clip-path: polygon(0 -12px, 100% -12px, 100% calc(100% - 3px), calc(100% - 3px) calc(100% - 3px),
+  calc(100% - 3px) 100%, 3px 100%, 3px calc(100% - 3px), 0 calc(100% - 3px)); } /* lets the snow pile up above the top edge */
+/* New Year: confetti */
+:root[data-season="newyear"] .card::before, :root[data-season="newyear"] .tile::before, :root[data-season="newyear"] nav#hotbar::before {
+  left: 0; right: 0; top: 0; height: 9px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 3' width='36' height='9' shape-rendering='crispEdges'%3E%3Cpath fill='%23f4c84a' d='M0 0h1v1h-1zM7 1h1v1h-1zM5 2h1v1h-1z'/%3E%3Cpath fill='%23f08cc0' d='M4 0h1v1h-1zM11 1h1v1h-1z'/%3E%3Cpath fill='%234fd1c5' d='M9 0h1v1h-1zM1 2h1v1h-1z'/%3E%3Cpath fill='%23a57de0' d='M2 1h1v1h-1zM8 2h1v1h-1z'/%3E%3C/svg%3E") repeat-x 0 0 / 36px 9px; }
+/* Easter: painted-egg ribbon */
+:root[data-season="easter"] .card::before, :root[data-season="easter"] .tile::before, :root[data-season="easter"] nav#hotbar::before {
+  left: 0; right: 0; top: 0; height: 9px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 3' width='24' height='9' shape-rendering='crispEdges'%3E%3Cpath fill='%23f6a8cf' d='M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM7 0h1v1h-1zM0 1h1v1h-1zM2 1h1v1h-1zM3 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM7 1h1v1h-1z'/%3E%3Cpath fill='%23ffe27a' d='M1 1h1v1h-1zM5 1h1v1h-1z'/%3E%3Cpath fill='%23a8d8ff' d='M0 2h1v1h-1zM1 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM7 2h1v1h-1z'/%3E%3C/svg%3E") repeat-x 0 0 / 24px 9px; }
+/* Halloween: cobwebs */
+:root[data-season="halloween"] .card::before, :root[data-season="halloween"] .tile::before, :root[data-season="halloween"] nav#hotbar::before {
+  right: 0; top: 0; width: 21px; height: 21px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' width='21' height='21' shape-rendering='crispEdges'%3E%3Cpath fill='%239a9aa8' d='M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM4 1h1v1h-1zM6 1h1v1h-1zM2 2h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM3 3h1v1h-1zM5 3h1v1h-1zM6 3h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM5 5h1v1h-1zM6 5h1v1h-1zM6 6h1v1h-1z'/%3E%3C/svg%3E") no-repeat 0 0 / 21px 21px; }
+:root[data-season="halloween"] .card::after { content: ""; position: absolute; top: 0; left: 58%; width: 33px; height: 33px; z-index: 2;
+  pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 11' width='33' height='33' shape-rendering='crispEdges'%3E%3Cpath fill='%239a9aa8' d='M5 0h1v1h-1zM5 1h1v1h-1zM5 2h1v1h-1zM5 3h1v1h-1zM5 4h1v1h-1zM5 5h1v1h-1z'/%3E%3Cpath fill='%231b1020' d='M2 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM5 7h1v1h-1zM6 7h1v1h-1zM7 7h1v1h-1zM9 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM5 8h1v1h-1zM7 8h1v1h-1zM10 8h1v1h-1zM1 9h1v1h-1zM3 9h1v1h-1zM4 9h1v1h-1zM5 9h1v1h-1zM6 9h1v1h-1zM7 9h1v1h-1zM9 9h1v1h-1zM2 10h1v1h-1zM5 10h1v1h-1zM8 10h1v1h-1z'/%3E%3Cpath fill='%23e0402c' d='M4 8h1v1h-1zM6 8h1v1h-1z'/%3E%3C/svg%3E") no-repeat 0 0 / 33px 33px; transform-origin: 50% 0; animation: spider 6s ease-in-out infinite; }
+:root[data-season="halloween"] .card:nth-child(3n+2)::after { display: none; }
+@keyframes spider { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+/* whole page: falling snow / confetti, above the content, never in the way of clicks */
+#pagefx { position: fixed; inset: 0; z-index: 15; pointer-events: none; display: none; image-rendering: pixelated; }
+:root[data-season="xmas"] #pagefx { display: block; opacity: .6; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 54' width='162' height='162' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M2 0h1v1h-1zM20 7h1v1h-1zM8 8h1v1h-1zM31 21h1v1h-1zM25 30h1v1h-1zM45 35h1v1h-1zM19 37h1v1h-1zM24 41h1v1h-1zM20 47h1v1h-1z'/%3E%3C/svg%3E") repeat 0 0 / 162px 162px, url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 54' width='162' height='162' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M2 0h1v1h-1zM20 7h1v1h-1zM8 8h1v1h-1zM31 21h1v1h-1zM25 30h1v1h-1zM45 35h1v1h-1zM19 37h1v1h-1zM24 41h1v1h-1zM20 47h1v1h-1z'/%3E%3C/svg%3E") repeat 80px 40px / 324px 324px;
+  animation: pagefall 26s linear infinite; }
+:root[data-season="newyear"] #pagefx { display: block; opacity: .7; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 54' width='162' height='162' shape-rendering='crispEdges'%3E%3Cpath fill='%23f4c84a' d='M5 3h1v1h-1zM40 24h1v1h-1zM40 44h1v1h-1z'/%3E%3Cpath fill='%23a57de0' d='M4 5h1v1h-1zM44 37h1v1h-1z'/%3E%3Cpath fill='%23f08cc0' d='M19 28h1v1h-1zM26 38h1v1h-1zM18 50h1v1h-1z'/%3E%3Cpath fill='%234fd1c5' d='M38 42h1v1h-1zM37 49h1v1h-1z'/%3E%3Cpath fill='%23ff8a2a' d='M31 44h1v1h-1zM16 49h1v1h-1z'/%3E%3C/svg%3E") repeat 0 0 / 162px 162px; animation: pagefall2 34s linear infinite; }
+@keyframes pagefall { to { background-position: 0 162px, 80px 364px; } }
+@keyframes pagefall2 { to { background-position: 0 162px; } }
+.no-anim #pagefx { display: none !important; }
+@media (prefers-reduced-motion: reduce) { #pagefx { display: none !important; } }
+/* seasonal-theme switch next to light / dark */
+#seasonBtn[hidden] { display: none; }
+#seasonBtn.off svg { filter: grayscale(1) opacity(.55); }
+
+/* ---------------------------------------------------------------- scrollbar: a recessed slot and a stone button */
+/* Firefox only: in Chrome/Edge, setting scrollbar-color would switch off the ::-webkit-scrollbar styling below */
+@supports (-moz-appearance: none) { html { scrollbar-color: #8b8b8b var(--sb-track); } }
+::-webkit-scrollbar { width: 16px; height: 16px; }
+::-webkit-scrollbar-track { background: var(--sb-track); box-shadow: inset 3px 3px 0 var(--sb-track-lo), inset -3px -3px 0 var(--sb-track-hi); }
+::-webkit-scrollbar-thumb { background: #8b8b8b url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5' width='8' height='10' shape-rendering='crispEdges'%3E%3Cpath fill='%233d3d3d' d='M0 0h4v1h-4zM0 2h4v1h-4zM0 4h4v1h-4z'/%3E%3C/svg%3E") center / 8px 10px no-repeat; border: 2px solid #000; min-height: 48px;
+  box-shadow: inset 2px 2px 0 #c6c6c6, inset -2px -3px 0 #555555; }
+::-webkit-scrollbar-thumb:hover { background-color: var(--accent); box-shadow: inset 2px 2px 0 rgba(255, 255, 255, .4), inset -2px -3px 0 rgba(0, 0, 0, .35); }
+::-webkit-scrollbar-thumb:active { background-color: #6d6d6d; box-shadow: inset 2px 2px 0 #555555, inset -2px -2px 0 #9a9a9a; }
+::-webkit-scrollbar-corner { background: var(--sb-track); }
+::-webkit-scrollbar-button { display: none; }
+.tbl-wrap::-webkit-scrollbar, .sv-block .tbl-wrap::-webkit-scrollbar { width: 12px; height: 12px; }
+.tbl-wrap::-webkit-scrollbar-thumb { background-size: 6px 8px; min-height: 32px; }
+
+/* ---------------------------------------------------------------- page changes */
+main.page-out { animation: page-out .15s ease-in both; pointer-events: none; }
+main.page-in { animation: page-in .42s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes page-out { to { opacity: 0; transform: translateX(calc(var(--dir, 1) * -26px)); } }
+@keyframes page-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 34px)); } }
+main.quiet .card, main.quiet .tile, main.quiet .pp-grow, main.quiet .pp-fade, main.quiet li { animation: none !important; }
+nav#hotbar a.on .px { animation: slot-pop .38s cubic-bezier(.3, 1.6, .5, 1); }
+nav#hotbar a.on::after { animation: slot-frame .25s ease-out; }
+@keyframes slot-pop { 0% { transform: scale(.7); } 60% { transform: translateY(-4px) scale(1.12); } 100% { transform: none; } }
+@keyframes slot-frame { from { opacity: 0; transform: scale(1.18); } }
+
+/* ---------------------------------------------------------------- scrolling: boxes appear as they come into view */
+.reveal { opacity: 0; transform: translateY(30px) scale(.985); animation: none !important;
+  transition: opacity .5s ease var(--rd, 0ms), transform .65s cubic-bezier(.2, .8, .2, 1) var(--rd, 0ms); }
+.reveal * { animation-play-state: paused !important; }
+.reveal.in { opacity: 1; transform: none; }
+.reveal.in * { animation-play-state: running !important; }
+html { scroll-behavior: smooth; }
+#scrollxp { position: fixed; left: 0; right: 0; top: 0; height: 5px; z-index: 30; background: rgba(0, 0, 0, .55); pointer-events: none;
+  opacity: 0; transition: opacity .25s; }
+#scrollxp.on { opacity: 1; }
+#scrollxp i { display: block; height: 100%; width: 0; background: var(--xp); box-shadow: inset 0 -2px 0 var(--xp-dark);
+  background-image: repeating-linear-gradient(90deg, transparent 0 calc(10% - 2px), rgba(0, 0, 0, .35) calc(10% - 2px) 10%); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1 !important; transform: none !important; } }
+.no-anim .reveal { opacity: 1 !important; transform: none !important; }

@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0
+
+- **Seasonal themes**, every year: Christmas (10-29 Dec: snow, baubles, presents), New Year (30 Dec-2 Jan: night sky and
+  fireworks), Easter (Easter Sunday: painted eggs and flowers) and Halloween (10 Oct-2 Nov: dusk sky, autumn trees,
+  pumpkins, bats), each with a message in 10 languages (in the dashboard, and once per event in chat). Every box, tile
+  and the hotbar get dressed too (snow drifts, confetti, painted-egg ribbon, cobwebs and spiders), with falling snow or
+  confetti over the page. A button next to light / dark turns the theme off (remembered); the theme switches by
+  itself at midnight. `chat.seasonal=false` turns the chat message off.
+- **Smoother dashboard**: Minecraft-style scrollbar (recessed slot, stone thumb), tabs slide in from the side of the
+  hotbar move, boxes rise in as they scroll into view (charts grow at that moment), the header landscape moves with
+  depth, an XP-bar style scroll indicator, and the live refresh no longer replays the animations every minute.
+  Everything stays still when the system asks for less motion.
+- Clearer numbers in pixel text: digits now come from Silkscreen (OFL); Pixelify's 5, 6 and 8 looked like S, G and B.
+- Fix: the playtime milestone was repeated every 5 minutes once crossed.
+- The browser now picks up the new tab icon.
+
 ## 1.0.0 — first release
 
 - **Playtime, measured honestly**: game open, active and AFK time (5 min idle, reclassified retroactively), 28 screen
