@@ -39,7 +39,12 @@ public final class Config {
         def("chat.seasonal", "true", "A friendly message once per event (Christmas, New Year, Easter, Halloween), with the daily summary");
         def("dashboard.skin", "true", "Download your own skin from Mojang (once a day) to show your head in the dashboard");
         def("leaderboard.url", "", "Leaderboard server. Empty = the official PlayChrono server");
+        def("backup.dir", "", "Automatic backup folder, ideally a synced or external one (OneDrive, Google Drive, USB stick...). Example: backup.dir=C:\\Users\\you\\OneDrive\\PlayChrono. Empty = off. A .zip of your stats is written there once a day and when the game closes / Dossier de sauvegarde automatique");
+        def("backup.keep", "10", "Number of backups kept in backup.dir (the oldest are deleted). Each backup contains everything");
     }
+
+    /** Keys whose value is a file path: read literally, so a Windows path with backslashes works as typed. */
+    private static final java.util.Set<String> RAW = java.util.Collections.singleton("backup.dir");
 
     private static void def(String k, String v, String comment) { DEFAULTS.put(k, new String[]{v, comment}); }
 
@@ -75,9 +80,7 @@ public final class Config {
     private void load() {
         try {
             Files.createDirectories(file.getParent());
-            if (Files.exists(file)) {
-                try (Reader r = Files.newBufferedReader(file, StandardCharsets.UTF_8)) { props.load(r); }
-            }
+            if (Files.exists(file)) props.putAll(read(Files.readAllLines(file, StandardCharsets.UTF_8)));
             boolean missing = DEFAULTS.keySet().stream().anyMatch(k -> !props.containsKey(k));
             if (missing) appendMissing();
         } catch (IOException e) {
@@ -125,6 +128,40 @@ public final class Config {
     }
 
     public boolean bool(String key) { return "true".equalsIgnoreCase(str(key)); }
+
+    /**
+     * Parses config.properties lines. Standard .properties rules, except for path keys (backup.dir), which are taken
+     * literally: in a .properties file "C:\Users\me" would otherwise lose its backslashes and become "C:Usersme".
+     */
+    public static Properties read(java.util.List<String> lines) {
+        Properties p = new Properties();
+        try (Reader r = new java.io.StringReader(String.join("\n", lines))) { p.load(r); } catch (IOException | IllegalArgumentException ignored) { /* */ }
+        for (String raw : lines) {
+            String l = raw.trim();
+            for (String k : RAW) {
+                if (!l.startsWith(k)) continue;
+                String rest = l.substring(k.length()).trim();
+                if (rest.startsWith("=") || rest.startsWith(":")) p.setProperty(k, rest.substring(1).trim());
+            }
+        }
+        return p;
+    }
+
+    /**
+     * Brings back the settings of a restored backup: every known key still at its default here takes the backup's
+     * value; keys the player already changed on this computer are kept. Returns the number of keys taken.
+     */
+    public int adopt(Properties other) {
+        int n = 0;
+        for (Map.Entry<String, String[]> e : DEFAULTS.entrySet()) {
+            String k = e.getKey(), v = other.getProperty(k);
+            if (v == null) continue;
+            v = v.trim();
+            if (v.equals(str(k)) || !str(k).equals(e.getValue()[0])) continue;
+            try { set(k, v); n++; } catch (IllegalArgumentException ignored) { /* multi-line value: skip */ }
+        }
+        return n;
+    }
 
     /** Updates one key in memory and in the file, keeping comments and the user's other lines untouched. */
     public synchronized void set(String key, String value) {

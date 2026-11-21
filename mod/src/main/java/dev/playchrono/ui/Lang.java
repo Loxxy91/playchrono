@@ -124,6 +124,16 @@ public final class Lang {
         T.get("ru").put("lbInvite", "Новинка: онлайн-рейтинг! Нажмите {0} > Рейтинг, чтобы участвовать (по желанию).");
         T.get("zh").put("lbInvite", "新功能：在线排行榜！按 {0} > 排行榜 即可加入（可选）。");
         T.get("ja").put("lbInvite", "新機能：オンラインランキング！{0} > ランキング から参加できます（任意）。");
+        T.get("en").put("restored", "Backup restored: {0} sessions are back. Welcome home!");
+        T.get("fr").put("restored", "Sauvegarde restaurée : {0} sessions sont de retour. Bon retour parmi nous !");
+        T.get("es").put("restored", "Copia de seguridad restaurada: {0} sesiones han vuelto. ¡Bienvenido de nuevo!");
+        T.get("de").put("restored", "Sicherung wiederhergestellt: {0} Sitzungen sind zurück. Willkommen zurück!");
+        T.get("it").put("restored", "Backup ripristinato: {0} sessioni sono tornate. Bentornato!");
+        T.get("pt").put("restored", "Backup restaurado: {0} sessões estão de volta. Bem-vindo de volta!");
+        T.get("pl").put("restored", "Kopia zapasowa przywrócona: {0} sesji wróciło. Witaj z powrotem!");
+        T.get("ru").put("restored", "Резервная копия восстановлена: вернулось сессий: {0}. С возвращением!");
+        T.get("zh").put("restored", "备份已恢复：{0} 个会话已找回。欢迎回来！");
+        T.get("ja").put("restored", "バックアップを復元しました：{0} セッションが戻りました。おかえりなさい！");
     }
 
     private static void put(String lang, String welcome, String milestone, String brk, String afk, String dash, String dashFail) {

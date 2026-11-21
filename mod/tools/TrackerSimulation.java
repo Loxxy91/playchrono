@@ -121,6 +121,11 @@ public class TrackerSimulation {
         // during the session must not be announced again at each refresh (it used to repeat every 5 minutes)
         Path dir2 = Files.createTempDirectory("playchrono-sim");
         EventLog log2 = new EventLog(dir2.resolve("sessions"), wall, dev.playchrono.store.Signer.of(dir2));
+        Map<String, Object> start2 = EventLog.rec("start");
+        start2.put("ts", wall);
+        start2.put("mc", "1.21.4");
+        start2.put("ldr", "fabric");
+        log2.write(start2);
         chat.clear();
         tr = new Tracker(log2, new Tracker.Listener() {
             public void chat(String key, Object... args) { chat.add(key); }
@@ -140,6 +145,7 @@ public class TrackerSimulation {
         check("next milestone (20 h) still announced", chat.stream().filter("milestone"::equals).count() == 2);
         tr.close(wall);
         log2.close();
+        backupAndRestore(dir, dir2, active);
         // ---- seasonal events, every year
         int[][] easter = {{2024, 3, 31}, {2025, 4, 20}, {2026, 4, 5}, {2027, 3, 28}, {2028, 4, 16}, {2035, 3, 25}, {2038, 4, 25}};
         boolean eOk = true;
@@ -162,6 +168,76 @@ public class TrackerSimulation {
         check("seasonal chat messages in 10 languages (year inserted, apostrophes ok): " + dev.playchrono.ui.Lang.get("fr", "season.easter"), lOk);
         System.out.println(fails == 0 ? "ALL CHECKS PASSED" : fails + " CHECK(S) FAILED");
         System.exit(fails == 0 ? 0 : 1);
+    }
+
+    /**
+     * Old computer = dir (one signed, compacted session), new computer = dir2 (its own key and session). A backup of
+     * dir restored into dir2 must bring the session back, still counting for the leaderboard, without losing dir2's.
+     */
+    static void backupAndRestore(Path dir, Path dir2, long oldActive) throws Exception {
+        dev.playchrono.store.AppState oldState = new dev.playchrono.store.AppState(dir);
+        oldState.put("created", 1_000L);
+        Files.write(dir.resolve("config.properties"), java.util.Arrays.asList("afk.seconds=120", "backup.dir=C:\\Users\\me\\OneDrive\\PlayChrono"));
+        Path bdir = Files.createTempDirectory("playchrono-backups");
+        Files.write(bdir.resolve("playchrono-backup-20000101-000000.zip"), new byte[]{1});
+        Files.write(bdir.resolve("playchrono-backup-20000102-000000.zip"), new byte[]{1});
+        Path zip = dev.playchrono.store.Backup.writeTo(dir, bdir, 2, "test");
+        check("backup written, oldest backups pruned (keep = 2)", Files.exists(zip) && !Files.exists(bdir.resolve("playchrono-backup-20000101-000000.zip"))
+                && Files.exists(bdir.resolve("playchrono-backup-20000102-000000.zip")));
+
+        long newOwn = Json.num(Aggregator.run(dir2).me.get("active"), -1);
+        dev.playchrono.util.Config cfg2 = new dev.playchrono.util.Config(dir2);
+        dev.playchrono.store.AppState st2 = new dev.playchrono.store.AppState(dir2);
+        dev.playchrono.store.Backup.Report rep = dev.playchrono.store.Backup.restore(zip, dir2, cfg2, st2, null);
+        check("restore adds the old computer's session (" + rep + ")", rep.added == 1 && rep.keys == 1);
+        long merged = Json.num(Aggregator.run(dir2).me.get("active"), -1);
+        check("restored session still counts for the leaderboard (old key trusted): " + merged / 1000 + " s = "
+                + oldActive / 1000 + " + " + newOwn / 1000, newOwn > 0 && merged == oldActive + newOwn);
+        check("install date moved back to the old computer's", st2.num("created") == 1_000L);
+        dev.playchrono.util.Config reread = new dev.playchrono.util.Config(dir2);
+        check("settings restored, Windows path kept literally: " + reread.str("backup.dir"),
+                reread.str("backup.dir").equals("C:\\Users\\me\\OneDrive\\PlayChrono") && reread.integer("afk.seconds") == 120);
+        check("restoring the same backup twice changes nothing", !dev.playchrono.store.Backup.restore(zip, dir2, cfg2, st2, null).changed());
+        dev.playchrono.store.Compactor.compactAll(dir2, null);
+        check("new computer's own sessions keep counting after compaction", Json.num(Aggregator.run(dir2).me.get("active"), -1) == merged);
+
+        // a copy cut short (backup taken mid-session, crash) is replaced by the finished one
+        Path restored;
+        try (java.util.stream.Stream<Path> s = Files.walk(dir.resolve("sessions"))) {
+            Path src = s.filter(p -> p.toString().endsWith(".jsonl")).findFirst().get();
+            restored = dir2.resolve(dir.relativize(src).toString());
+        }
+        List<String> full = Files.readAllLines(restored);
+        Files.write(restored, full.subList(0, full.size() - 1));
+        check("an unfinished local copy is completed by the backup", dev.playchrono.store.Backup.restore(zip, dir2, cfg2, st2, null).replaced == 1
+                && Files.readAllLines(restored).equals(full));
+
+        // a hostile zip cannot write outside the data folder
+        Path evil = bdir.resolve("evil.zip");
+        try (java.util.zip.ZipOutputStream z = new java.util.zip.ZipOutputStream(Files.newOutputStream(evil))) {
+            for (String n : new String[]{"../escaped.jsonl", "sessions/../../escaped2.jsonl", "/abs.jsonl", "sessions/2026-01/../../../x.jsonl"}) {
+                z.putNextEntry(new java.util.zip.ZipEntry(n));
+                z.write("{}".getBytes());
+                z.closeEntry();
+            }
+        }
+        boolean refused;
+        try { dev.playchrono.store.Backup.restore(evil, dir2, cfg2, st2, null); refused = false; } catch (java.io.IOException e) { refused = true; }
+        check("zip with path tricks refused, nothing written outside", refused && !Files.exists(dir2.getParent().resolve("escaped.jsonl"))
+                && !Files.exists(dir2.getParent().resolve("escaped2.jsonl")));
+
+        // the drop folder: ~/.playchrono/restore/*.zip is merged at startup, then moved to restore/done
+        Path dir3 = Files.createTempDirectory("playchrono-sim");
+        Files.createDirectories(dir3.resolve("restore"));
+        Files.copy(zip, dir3.resolve("restore").resolve(zip.getFileName()));
+        List<dev.playchrono.store.Backup.Report> dropped = dev.playchrono.store.Backup.restoreDropped(dir3,
+                new dev.playchrono.util.Config(dir3), new dev.playchrono.store.AppState(dir3), null);
+        check("backup dropped in restore/ is merged then moved to restore/done", dropped.size() == 1 && dropped.get(0).added == 1
+                && Files.exists(dir3.resolve("restore").resolve("done").resolve(zip.getFileName()))
+                && Json.num(Aggregator.run(dir3).me.get("active"), -1) == oldActive);
+        boolean rOk = true;
+        for (String l : dev.playchrono.ui.Lang.SUPPORTED) { String m = dev.playchrono.ui.Lang.get(l, "restored", "12"); rOk &= m.contains("12") && !m.contains("{"); }
+        check("\"backup restored\" chat message in 10 languages: " + dev.playchrono.ui.Lang.get("fr", "restored", "12"), rOk);
     }
 
     static Snapshot snap(String state, boolean inWorld, boolean input) {

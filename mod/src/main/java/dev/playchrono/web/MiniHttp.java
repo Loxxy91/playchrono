@@ -42,6 +42,11 @@ public final class MiniHttp {
     private final java.util.function.Consumer<Boolean> onLeaderboard;
     private java.util.function.Consumer<Map<String, Object>> onPrefs;
 
+    private java.util.function.Supplier<byte[]> backup;
+
+    /** Source of GET /api/backup.zip (the "download a backup" button). */
+    public MiniHttp backup(java.util.function.Supplier<byte[]> b) { this.backup = b; return this; }
+
     /** Receiver of POST /api/prefs ({"theme": ..., "keyboard": ...}); validates the values itself. */
     public MiniHttp prefs(java.util.function.Consumer<Map<String, Object>> c) { this.onPrefs = c; return this; }
 
@@ -140,6 +145,14 @@ public final class MiniHttp {
                 lingeringClose(sock);
                 return;
             }
+            if (path.equals("/api/backup.zip") && backup != null) {
+                // a download link on the page itself: Sec-Fetch-Site above already refused other websites
+                byte[] zip = backup.get();
+                if (zip == null) { send(out, 500, "text/plain", "backup failed".getBytes()); return; }
+                send(out, 200, "application/zip", zip, "Content-Disposition: attachment; filename=\"" + dev.playchrono.store.Backup.fileName() + "\"");
+                lingeringClose(sock);
+                return;
+            }
             String file = path.substring(1);
             if (!Arrays.asList(Dashboard.ASSETS).contains(file)) { send(out, 404, "text/plain", "not found".getBytes()); return; }
             Path p = dashboard.dir().resolve(file);
@@ -193,13 +206,15 @@ public final class MiniHttp {
 
     private final ThreadLocal<Boolean> gzip = ThreadLocal.withInitial(() -> false);
 
-    private void send(OutputStream out, int code, String type, byte[] body) throws IOException {
-        String enc = "";
-        if (gzip.get() && body.length > 1024) {
+    private void send(OutputStream out, int code, String type, byte[] body) throws IOException { send(out, code, type, body, null); }
+
+    private void send(OutputStream out, int code, String type, byte[] body, String extraHeader) throws IOException {
+        String enc = extraHeader == null ? "" : "\r\n" + extraHeader;
+        if (gzip.get() && body.length > 1024 && !type.equals("application/zip")) {
             java.io.ByteArrayOutputStream b = new java.io.ByteArrayOutputStream(body.length / 4);
             try (java.util.zip.GZIPOutputStream g = new java.util.zip.GZIPOutputStream(b)) { g.write(body); }
             body = b.toByteArray();
-            enc = "\r\nContent-Encoding: gzip\r\nVary: Accept-Encoding";
+            enc += "\r\nContent-Encoding: gzip\r\nVary: Accept-Encoding";
         }
         String head = "HTTP/1.1 " + code + (code == 200 ? " OK" : " Error") + "\r\nContent-Type: " + type + enc
                 + "\r\nContent-Length: " + body.length + "\r\nCache-Control: no-store\r\nX-Content-Type-Options: nosniff"

@@ -113,6 +113,27 @@ deaths, highest altitude, farthest point, top speed, XP levels and messages.
   keep working, as always 100% locally.
 
 
+## 💾 Backup & new computer
+
+Your stats live only in `~/.playchrono/` on this computer. To keep them through a new PC or a reinstalled system:
+
+- **Automatic backup**: set `backup.dir` in `config.properties` to a folder that survives this computer (OneDrive,
+  Google Drive, a USB stick…), e.g. `backup.dir=C:\Users\you\OneDrive\PlayChrono`. A `.zip` of everything is
+  written there once a day and every time the game closes; the 10 most recent are kept (`backup.keep`).
+- **Manual backup**: *Download a backup* at the bottom of the dashboard's Overview (F8), or
+  `java -jar playchrono-1.1.0.jar backup`. The dashboard reminds you when nothing protects your stats.
+- **Restore**: install PlayChrono on the new computer, drop the `.zip` into `~/.playchrono/restore/`, start the game.
+  You get a message in chat. Or run `java -jar playchrono-1.1.0.jar restore backup.zip`; an old `.playchrono` folder
+  copied from another disk works too.
+
+A restore **merges** and never overwrites: missing sessions are added, a session found on both sides keeps its most
+complete copy, settings you haven't changed on the new computer are taken from the backup, and the "tracking since"
+date goes back to your first install. The previous install's signing key comes along, so a restored history still
+counts for the leaderboard. Restoring the same backup twice changes nothing.
+
+Advanced: the `PLAYCHRONO_DIR` environment variable (or `-Dplaychrono.dir=`) moves the whole data folder, for
+example straight into a synced folder.
+
 ## 🔒 Privacy
 
 - Everything is stored in `~/.playchrono/` on your computer. Without the (opt-in) leaderboard, PlayChrono **never sends
@@ -146,6 +167,8 @@ deaths, highest altitude, farthest point, top speed, XP levels and messages.
 | `leaderboard.enabled` | `false` | Opt-in to the online leaderboard (also a button in the dashboard) |
 | `import.logs` | `false` | Adds an *estimate* of past playtime rebuilt from the game's logs |
 | `privacy.commands` · `privacy.keys` · `privacy.serverAddresses` | `true` | Turn off command names, per-key counts or server addresses |
+| `backup.dir` | *(empty)* | Automatic backup folder (OneDrive, USB stick…), daily and when the game closes; empty = off. Windows paths can be pasted as is |
+| `backup.keep` | `10` | Number of backups kept in `backup.dir` |
 
 ### Command line
 
@@ -156,6 +179,8 @@ java -jar playchrono-1.1.0.jar                  # build and open the dashboard
 java -jar playchrono-1.1.0.jar serve [port]     # live dashboard on http://127.0.0.1:47823
 java -jar playchrono-1.1.0.jar import <gameDir> # import the logs/ folder of a game directory
 java -jar playchrono-1.1.0.jar export stats.json
+java -jar playchrono-1.1.0.jar backup [dir|file.zip]     # default: backup.dir, else the current folder
+java -jar playchrono-1.1.0.jar restore <backup.zip|dir>  # merge a backup (close the game first)
 ```
 
 ## 🛠 How it works

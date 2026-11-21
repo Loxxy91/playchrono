@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+- **Backups, so a new computer doesn't mean starting from zero**: set `backup.dir` (OneDrive, Google Drive, a USB
+  stick…) and a `.zip` of all your stats is written there every day and when the game closes (`backup.keep`, 10 by
+  default). You can also download a backup from the dashboard (bottom of the Overview), or run
+  `java -jar playchrono.jar backup`. The dashboard reminds you when nothing protects your stats.
+- **Restore by dropping the zip** into `~/.playchrono/restore/` and starting the game (or `restore <zip|folder>` on
+  the command line). Restores merge and never overwrite: missing sessions are added, an unfinished copy is completed,
+  untouched settings and the original install date come back, and the old install's signing key is trusted, so the
+  restored history still counts for the leaderboard. A message in chat confirms it, in 10 languages.
+- Chat lines generated while no world is loaded now wait until you join one instead of being dropped.
+- Documented `PLAYCHRONO_DIR` / `-Dplaychrono.dir` to move the whole data folder.
+
 ## 1.1.0
 
 - **Seasonal themes**, every year: Christmas (10-29 Dec: snow, baubles, presents), New Year (30 Dec-2 Jan: night sky and

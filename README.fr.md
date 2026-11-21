@@ -49,7 +49,32 @@ java -jar playchrono-1.1.0.jar                  # importe tous tes logs, génèr
 java -jar playchrono-1.1.0.jar serve            # tableau de bord en direct sur http://127.0.0.1:47823
 java -jar playchrono-1.1.0.jar import <dossier> # importe un dossier de jeu précis (son sous-dossier logs/)
 java -jar playchrono-1.1.0.jar export stats.json
+java -jar playchrono-1.1.0.jar backup [dossier|fichier.zip]   # par défaut : backup.dir, sinon le dossier courant
+java -jar playchrono-1.1.0.jar restore <sauvegarde.zip|dossier>  # fusionne une sauvegarde (ferme le jeu avant)
 ```
+
+## Sauvegarde et nouveau PC
+
+Tes stats n'existent que dans `~/.playchrono/`, sur ce PC. Pour les garder après un changement de PC ou une
+réinstallation :
+
+- **Sauvegarde automatique** : indique dans `config.properties` un dossier qui survivra à ce PC (OneDrive, Google
+  Drive, une clé USB…), par exemple `backup.dir=C:\Users\toi\OneDrive\PlayChrono`. Un `.zip` complet y est écrit une
+  fois par jour et à chaque fermeture du jeu ; les 10 plus récents sont gardés (`backup.keep`).
+- **Sauvegarde à la main** : *Télécharger une sauvegarde* en bas de la vue d'ensemble du tableau de bord (F8), ou
+  `java -jar playchrono-1.1.0.jar backup`. Le tableau de bord te prévient quand rien ne protège tes stats.
+- **Restaurer** : installe PlayChrono sur le nouveau PC, dépose le `.zip` dans `~/.playchrono/restore/` et lance le
+  jeu ; un message le confirme dans le chat. Ou bien `java -jar playchrono-1.1.0.jar restore sauvegarde.zip` ; un
+  ancien dossier `.playchrono` copié depuis un autre disque marche aussi.
+
+Une restauration **fusionne** et n'écrase jamais rien : les sessions manquantes sont ajoutées, une session présente
+des deux côtés garde sa copie la plus complète, les réglages que tu n'as pas changés sur le nouveau PC sont repris de
+la sauvegarde, et la date « suivi depuis » revient à ta première installation. La clé de signature de l'ancienne
+installation est reprise, donc l'historique restauré compte toujours pour le classement. Restaurer deux fois la même
+sauvegarde ne change rien.
+
+Pour les utilisateurs avancés : la variable d'environnement `PLAYCHRONO_DIR` (ou `-Dplaychrono.dir=`) déplace tout le
+dossier de données, par exemple directement dans un dossier synchronisé.
 
 ## Classement en ligne
 
@@ -95,6 +120,8 @@ actions par minute, morts, altitude max, point le plus éloigné, vitesse max, n
 | `leaderboard.enabled` | `false` | participation au classement en ligne (aussi un bouton dans le tableau de bord) |
 | `import.logs` | `false` | `true` = ajoute une estimation de l'historique passé, reconstruite depuis les logs |
 | `privacy.commands` / `privacy.keys` / `privacy.serverAddresses` | `true` | désactive le comptage des commandes, des touches, ou le stockage des adresses de serveurs |
+| `backup.dir` | *(vide)* | dossier de sauvegarde automatique (OneDrive, clé USB…), chaque jour et à la fermeture du jeu ; vide = désactivé. Un chemin Windows peut être collé tel quel |
+| `backup.keep` | `10` | nombre de sauvegardes gardées dans `backup.dir` |
 
 ## Compatibilité
 

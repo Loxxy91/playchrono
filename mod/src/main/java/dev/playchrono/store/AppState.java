@@ -35,6 +35,8 @@ public final class AppState {
 
     public long num(String k) { return Json.num(data.get(k), 0); }
 
+    public synchronized Object get(String k) { return data.get(k); }
+
     public synchronized void put(String k, Object v) {
         data.put(k, v);
         save();

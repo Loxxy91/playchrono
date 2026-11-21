@@ -5,6 +5,7 @@ import dev.playchrono.probe.Snapshot;
 import dev.playchrono.reflect.R;
 import dev.playchrono.store.AppState;
 import dev.playchrono.store.Aggregator;
+import dev.playchrono.store.Backup;
 import dev.playchrono.store.Compactor;
 import dev.playchrono.store.EventLog;
 import dev.playchrono.store.Signer;
@@ -73,6 +74,8 @@ public final class PlayChrono implements Tracker.Listener {
     private Object mc;
     private long lastTick, suspendedMs, lastCheckpoint, lastRefresh, lastOpen;
     private boolean gameDirKnown, probeErrorLogged;
+    /** Sessions brought back by a restore at startup: announced in chat once the player is in a world. */
+    private volatile int restoredPending;
 
     // ============================================================================================ boot
     /** Called by every loader entry point. Idempotent, never throws into the loader. */
@@ -123,6 +126,7 @@ public final class PlayChrono implements Tracker.Listener {
         dashboard.extra("installedAt", () -> state.num("created"));
         dashboard.extra("prefs", cfg::prefs);
         dashboard.extra("face", () -> cfg.bool("dashboard.skin") ? Skin.dataUri(dataDir) : null);
+        dashboard.extra("backup", () -> Backup.info(cfg, dataDir, state));
         Log.info("PlayChrono " + VERSION + " tracking Minecraft " + env.mcVersion + " on " + env.loader + " " + env.loaderVersion
                 + " -> " + log.file());
     }
@@ -136,6 +140,8 @@ public final class PlayChrono implements Tracker.Listener {
     private void startup() {
         try {
             dashboard.installAssets();
+            // backups dropped into ~/.playchrono/restore (new computer, reinstalled system) are merged first
+            for (Backup.Report r : Backup.restoreDropped(dataDir, cfg, state, log.file())) restoredPending += r.added + r.replaced;
             if (cfg.bool("import.logs")) {
                 java.util.Set<Path> dirs = new java.util.LinkedHashSet<>();
                 dirs.add(env.gameDir.toAbsolutePath().normalize());
@@ -156,6 +162,17 @@ public final class PlayChrono implements Tracker.Listener {
                     });
                 });
                 h.prefs(cfg::savePrefs);
+                h.backup(() -> {
+                    try {
+                        try { sampler.submit(tracker::flushNow).get(2, TimeUnit.SECONDS); } catch (Exception ignored) { /* back up what is on disk */ }
+                        byte[] zip = Backup.bytes(dataDir, VERSION);
+                        state.put("backupDownload", System.currentTimeMillis());
+                        return zip;
+                    } catch (Exception e) {
+                        Log.warn("backup download failed", e);
+                        return null;
+                    }
+                });
                 if (h.start(port) > 0) {
                     http = h;
                     Log.info("live dashboard: " + h.url());
@@ -168,6 +185,7 @@ public final class PlayChrono implements Tracker.Listener {
     }
 
     private void refreshAndBaseline() {
+        Backup.auto(dataDir, cfg, state, VERSION, false); // at most once a day; also right after startup
         Aggregator.Result r = dashboard.refresh();
         if (!leaderboard.enabled() && leaderboard.leavePending()) leaderboard.leave(8000); // retry a failed removal
         if (leaderboard.enabled() && System.currentTimeMillis() - lastSubmit >= 15 * 60_000L) {
@@ -229,8 +247,11 @@ public final class PlayChrono implements Tracker.Listener {
             Snapshot s = probe.probe();
             if (s.lang != null) lang = Lang.pick(cfg.str("language"), s.lang);
             done.add(s);
+            // a line only leaves the queue once a player can see it (e.g. "backup restored" while on the title screen)
+            while (chatQueue.size() > 20) chatQueue.poll();
             String msg;
-            while ((msg = chatQueue.poll()) != null) ChatOut.send(msg);
+            while ((msg = chatQueue.peek()) != null && ChatOut.send(msg)) chatQueue.poll();
+            if (restoredPending > 0 && s.lang != null && ChatOut.send(Lang.get(lang, "restored", String.valueOf(restoredPending)))) restoredPending = 0;
         } catch (Throwable t) {
             if (!probeErrorLogged) {
                 probeErrorLogged = true;
@@ -320,6 +341,7 @@ public final class PlayChrono implements Tracker.Listener {
             tracker.close(System.currentTimeMillis());
             log.close();
             Future<?> f = background.submit(() -> {
+                Backup.auto(dataDir, cfg, state, VERSION, true); // includes the session that just ended
                 Aggregator.Result r = dashboard.refresh();
                 if (leaderboard.enabled()) leaderboard.submit(r.me, env.mcVersion, env.loader, 2500);
             });

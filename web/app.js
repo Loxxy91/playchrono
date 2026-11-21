@@ -301,6 +301,7 @@
     const allA = Object.values(D.days).reduce((x, d) => x + (d.a || 0), 0);
     const level = Math.floor(allA / 3.6e6), into = allA - level * 3.6e6;
     const since = D.installedAt || (D.me && D.me.since) || 0;
+    backupReminder(main, allA);
     tiles(main, [
       { label: t('kpi.active'), value: hours(a), raw: a, fmt: hours, sub: since ? t('ui.since', { d: dateFmt(since) }) : t('kpi.active_sub'), hero: true, icon: 'grass',
         xp: { pct: (into / 3.6e6) * 100, label: t('hero.level', { n: num(level) }) + ' · ' + t('hero.next', { t: dur(3.6e6 - into), n: num(level + 1) }) } },
@@ -335,6 +336,74 @@
       },
     });
     weeklyCard(g, 'full');
+    backupCard(g);
+  }
+
+  // ---------------------------------------------------------------------------------------------- backup
+  const isLive = () => location.protocol.startsWith('http');
+  const MONTH = 30 * 864e5;
+  /** True when nothing protects the stats: no working backup folder and no download in the last 30 days. */
+  function unprotected() {
+    const B = D.backup;
+    if (!B) return false; // older mod or CLI export: nothing to say
+    if (B.dir && !B.error) return false;
+    return !(B.download > Date.now() - MONTH);
+  }
+  /** Top-of-page reminder once there is something worth losing (1 h of play), hidden for 30 days by ✕. */
+  function backupReminder(main, totalActive) {
+    if (!unprotected() || totalActive < 3.6e6 || Number(store.get('backupHide', 0)) > Date.now() - MONTH) return;
+    const n = document.createElement('div');
+    n.className = 'note bk-note';
+    n.innerHTML = `${PI.svg('chest', 24)}<span>${esc(t('bk.remind'))}</span>`
+      + (isLive() ? `<a class="mc-btn sm green" href="api/backup.zip" download>${esc(t('bk.download'))}</a>` : '')
+      + `<a class="mc-btn sm" href="#backup-card">${esc(t('bk.how'))}</a>`
+      + `<button type="button" class="mc-btn sm" aria-label="${esc(t('season.hide'))}">✕</button>`;
+    $('button', n).addEventListener('click', () => { store.set('backupHide', String(Date.now())); n.remove(); });
+    $('a[href="#backup-card"]', n).addEventListener('click', (e) => {
+      e.preventDefault();
+      const c = $('#backup-card');
+      if (c) c.scrollIntoView({ behavior: motionOff() ? 'auto' : 'smooth', block: 'center' });
+    });
+    const dl = $('a[download]', n);
+    if (dl) dl.addEventListener('click', afterDownload);
+    main.appendChild(n);
+  }
+  /** The download is recorded by the mod: reload the status a moment later. */
+  function afterDownload() {
+    setTimeout(async () => { try { D = await api('api/data.json'); renderTab(true); } catch (e) { /* game closed */ } }, 2500);
+  }
+  function backupCard(g) {
+    const B = D.backup;
+    if (!B) return;
+    const c = card(g, {
+      title: t('bk.title'), icon: 'chest', sub: t('bk.sub'), full: true,
+      render: (host) => {
+        const when = (ms) => dateFmt(ms, { dateStyle: 'medium', timeStyle: 'short' });
+        let status;
+        if (B.dir && !B.error) {
+          status = `<p class="bk-ok"><b>✔ ${esc(t('bk.on'))}</b></p><p class="muted">${esc(t('bk.folder'))} : <code class="bk-path">${esc(B.dir)}</code></p>`
+            + `<p class="muted">${esc(B.last ? t('bk.last', { d: when(B.last) }) : t('bk.notYet'))}</p>`;
+        } else if (B.error) {
+          status = `<p class="bk-warn"><b>⚠ ${esc(t('bk.err.' + B.error))}</b></p>`
+            + (B.dir ? `<p class="muted">${esc(t('bk.folder'))} : <code class="bk-path">${esc(B.dir)}</code></p>` : '')
+            + `<p class="muted">${esc(t('bk.setup'))}</p>`;
+        } else {
+          status = `<p class="bk-warn"><b>⚠ ${esc(t('bk.off'))}</b></p><p class="muted">${esc(t('bk.setup'))}</p>`
+            + '<p class="muted"><code class="bk-path">backup.dir=C:\\Users\\…\\OneDrive\\PlayChrono</code></p>';
+        }
+        const dl = isLive()
+          ? `<a class="mc-btn green" href="api/backup.zip" download>${esc(t('bk.download'))}</a>`
+          : `<span class="muted">${esc(t('bk.fileMode'))}</span>`;
+        host.innerHTML = `<div class="lb-bar"><div class="grow">${status}</div>${dl}</div>`
+          + (B.download ? `<p class="muted">${esc(t('bk.downloaded', { d: when(B.download) }))}</p>` : '')
+          + `<h4 class="bk-h">${esc(t('bk.restoreTitle'))}</h4><p class="muted">${esc(t('bk.restore'))}</p>`
+          + `<p class="muted"><code class="bk-path">${esc(B.restoreDir || '')}</code></p>`
+          + (B.restored ? `<p class="muted">${esc(t('bk.restored', { d: when(B.restored.at), n: num((B.restored.added || 0) + (B.restored.replaced || 0)) }))}</p>` : '');
+        const a = $('a[download]', host);
+        if (a) a.addEventListener('click', afterDownload);
+      },
+    });
+    c.id = 'backup-card';
   }
 
   function dailyColumns(host, list) {

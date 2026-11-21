@@ -20,6 +20,18 @@ Counter merge rule: keys ending in `Max` → max, ending in `Min` → min, every
 Same records with `"imp":1` on `start`, rebuilt from a game directory's `logs/`. Regenerated whenever the logs
 change. The aggregator drops imported sessions that overlap a tracked one (or mostly overlap another import).
 
+## Signing key — `~/.playchrono/.key`
+
+`{"k": hex, "since": ms, "alt": [{"k", "since"}...]}`. `k` signs every new line of this install; `alt` holds the keys
+of previous installs brought back by a restore, used only to verify the sessions they signed.
+
+## Backups — `backup.dir/playchrono-backup-YYYYMMDD-HHmmss.zip`
+
+A zip of `backup.json` (`format`, `mod`, `created`, `sessions`), `.key`, `state.json`, `config.properties`,
+`sessions/**.jsonl` and `imported/*.jsonl`, with the same paths as in the data folder. A zip dropped into
+`~/.playchrono/restore/` is merged at startup, then moved to `restore/done/` (or `restore/failed/`). Only those exact
+paths are read from a zip; anything else is ignored.
+
 ## Rollup — `dashboard/data.js`, `/api/data.json`
 
 Built by `store/Aggregator.java` from the two folders above:
