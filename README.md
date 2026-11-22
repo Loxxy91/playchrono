@@ -71,6 +71,7 @@
 | ⚙️ **Performance** | FPS average, minimum and distribution, freezes, peak RAM, startup and world-join times, your setup |
 | 🧭 **Server details** | First connection, sessions, longest session, days played, ping, players online, deaths, biomes, hours and recent sessions, per server or world |
 | 🏆 **Leaderboard** | 20 ranked stats against every player who joined, with your rank in each |
+| 🤪 **Odd stats** | Share of the death messages seen in chat that were about you, your favourite way to die, what kills the most around you, your jumps stacked in Eiffel Towers, AFK time in films, hours sorting chests, lines read per message sent… |
 
 Languages: English, Français, Español, Deutsch, Italiano, Português, Polski, Русский, 中文, 日本語. The language
 follows your game language.
@@ -144,7 +145,8 @@ example straight into a synced folder.
   Leaving the leaderboard deletes all of it.
 - The live dashboard server only listens on `127.0.0.1` and rejects foreign `Host` headers, so other devices
   and websites cannot read it.
-- Chat content and command arguments are **never** recorded: only message counts and command names.
+- Chat content and command arguments are **never** recorded: only message counts, command names and, for death
+  messages, the game's cause key (`attack.lava`), never who died or the text.
 - Per-key counts, command names and server addresses can each be turned off.
 
 ## ⚙️ Configuration

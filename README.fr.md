@@ -30,6 +30,7 @@ local, en 10 langues. Un seul fichier `.jar` fonctionne sur **Fabric, Quilt, For
 | Performances | FPS moyens / minimum / distribution, gels de plus d'1 s, RAM max, temps de démarrage du jeu, temps de connexion à un monde, configuration (CPU, GPU, RAM, Java, résolution, distance d'affichage, launcher) |
 | Fiche serveur | Première connexion, sessions, plus longue session, jours joués, ping, joueurs en ligne, morts, biomes, heures et sessions récentes, par serveur ou monde |
 | Classement | 20 stats classées face à tous les joueurs inscrits, avec ton rang dans chacune |
+| Stats insolites | part des messages de mort aperçus dans le chat qui parlaient de toi, ta façon préférée de mourir, ce qui tue le plus autour de toi, tes sauts empilés en tours Eiffel, ton temps AFK en films, tes heures à ranger des coffres, lignes lues par message écrit… |
 
 Langues (jeu + tableau de bord) : français, anglais, espagnol, allemand, italien, portugais, polonais, russe,
 chinois, japonais. La langue suit celle du jeu automatiquement.
@@ -189,8 +190,9 @@ docs/           format des données, publication
   Fabric, Forge et les instances Prism). Le tableau de bord le signale par un bandeau.
 - **Clavier et souris** sont lus 40 fois par seconde. Un appui extrêmement bref (< 25 ms) peut être manqué : ça
   n'a aucun effet sur l'AFK, mais les compteurs de touches sont légèrement sous-estimés.
-- **Messages de chat** : seul le nombre de messages envoyés est mesuré (pas leur contenu). Pour les commandes, seul
-  le nom est conservé.
+- **Messages de chat** : seul le nombre de messages envoyés et reçus est mesuré (pas leur contenu). Pour les
+  commandes, seul le nom est conservé ; pour les messages de mort, seule la clé de cause du jeu (`attack.lava`), jamais
+  qui est mort ni le texte. Une mort annoncée par un plugin en texte libre (sans message vanilla) n'est pas reconnue.
 - Si deux instances du jeu tournent en même temps, le temps « jeu ouvert » s'additionne. Le temps **actif**, lui,
   ne compte qu'une fenêtre au premier plan à la fois.
 

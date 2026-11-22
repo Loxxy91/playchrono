@@ -95,6 +95,7 @@ public final class GameProbe {
         Object fps = R.call(mc, "Minecraft.getFps");
         if (fps instanceof Integer) s.fps = (Integer) fps;
         if (verySlow || username == null) client();
+        if (s.inWorld) chat(s);
         s.lang = lang;
         s.username = username;
         s.uuid = uuid;
@@ -107,6 +108,71 @@ public final class GameProbe {
         s.winW = winW;
         s.winH = winH;
         return s;
+    }
+
+    // ------------------------------------------------------------------ received chat
+    /** Chat history entries already seen, by identity (the game keeps the last 100, newest first). */
+    private java.util.Set<Object> seenMessages;
+
+    /**
+     * Counts the chat lines that arrived since the last probe and spots death messages by their translation key
+     * ("death.attack.lava"), which is the same in every language. Nothing else is read or kept: no text, no names.
+     */
+    private void chat(Snapshot s) {
+        Object all = R.get(R.call(R.get(mc, "Minecraft.gui"), "Gui.getChat"), "ChatComponent.allMessages");
+        if (!(all instanceof java.util.List)) return;
+        java.util.List<?> list = (java.util.List<?>) all;
+        if (seenMessages != null && (list.isEmpty() ? seenMessages.isEmpty() : seenMessages.contains(list.get(0)))) return; // nothing new
+        java.util.Set<Object> now = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        now.addAll(list);
+        if (seenMessages != null) {
+            for (Object m : list) {
+                if (seenMessages.contains(m)) continue;
+                Object content = R.call(m, "GuiMessage.content");
+                String text = R.text(content);
+                if (text != null && text.startsWith("§b[PlayChrono]")) continue; // our own lines
+                s.chatIn++;
+                String[] death = deathKey(content, 0);
+                if (death == null) continue;
+                boolean mine = isMe(death[1]) || (death[1] == null && State.DEAD.equals(s.state));
+                if (s.deathMsgs == null) s.deathMsgs = new java.util.ArrayList<>(2);
+                s.deathMsgs.add((mine ? "me|" : "|") + death[0]);
+            }
+        } // first look: the history already on screen is not counted
+        seenMessages = now;
+    }
+
+    /** The victim's displayed name is the account name, possibly with a server rank around it ("[VIP] Steve"). */
+    private boolean isMe(String victim) { return isMe(victim, username); }
+
+    public static boolean isMe(String victim, String username) {
+        if (victim == null || username == null || username.isEmpty()) return false;
+        String v = victim.replaceAll("§.", "");
+        return v.equals(username) || java.util.regex.Pattern.compile("(^|[^A-Za-z0-9_])" + java.util.regex.Pattern.quote(username) + "([^A-Za-z0-9_]|$)").matcher(v).find();
+    }
+
+    /** {cause, victim name} when the component (or one of its direct parts) is a vanilla death message. */
+    private static String[] deathKey(Object component, int depth) {
+        if (component == null || depth > 1) return null;
+        Object c = R.call(component, "Component.getContents");
+        if (R.isInstance("TranslatableContents", c)) {
+            Object k = R.call(c, "TranslatableContents.getKey");
+            if (k instanceof String && ((String) k).startsWith("death.")) {
+                String cause = ((String) k).substring(6).toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9._]", "");
+                if (cause.length() > 48) cause = cause.substring(0, 48);
+                Object args = R.call(c, "TranslatableContents.getArgs");
+                String victim = args instanceof Object[] && ((Object[]) args).length > 0 ? R.text(((Object[]) args)[0]) : null;
+                return cause.isEmpty() ? null : new String[]{cause, victim};
+            }
+        }
+        Object sib = R.call(component, "Component.getSiblings");
+        if (sib instanceof java.util.List) {
+            for (Object o : (java.util.List<?>) sib) {
+                String[] r = deathKey(o, depth + 1);
+                if (r != null) return r;
+            }
+        }
+        return null;
     }
 
     // ------------------------------------------------------------------ screen classification

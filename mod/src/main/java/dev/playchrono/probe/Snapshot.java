@@ -40,6 +40,8 @@ public final class Snapshot {
     public int keyCount;
     public String chatText;          // current chat box content while the chat screen is open
     public String disconnectReason;
+    public int chatIn;               // chat lines received since previous probe (counted, never stored)
+    public java.util.List<String> deathMsgs; // death messages seen: "me|attack.lava" (yours) or "|fall" (someone else)
 
     void addKey(int code) {
         keyPresses++;

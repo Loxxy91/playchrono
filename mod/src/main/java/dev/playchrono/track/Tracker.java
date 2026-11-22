@@ -396,6 +396,20 @@ public final class Tracker {
             cnt.add("deaths", 1);
         }
         if (s.sleeping && !prev.sleeping && s.inWorld) cnt.add("sleeps", 1);
+        // chat lines received + death messages seen (only the cause key, e.g. "attack.lava", is kept)
+        cnt.add("chatSeen", s.chatIn);
+        if (s.deathMsgs != null) {
+            for (String d : s.deathMsgs) {
+                int bar = d.indexOf('|');
+                String cause = d.substring(bar + 1);
+                cnt.add("dm", 1);
+                cnt.add("dmk", cause, 1);
+                if (bar == 2) { // "me|"
+                    cnt.add("dmMe", 1);
+                    cnt.add("dmkMe", cause, 1);
+                }
+            }
+        }
         if (s.disconnectReason != null) {
             Map<String, Object> e = ev("disc");
             put(e, "c", prev.ctx);

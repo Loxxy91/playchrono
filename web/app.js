@@ -336,7 +336,80 @@
       },
     });
     weeklyCard(g, 'full');
+    funCards(g, list);
     backupCard(g);
+  }
+
+  // ---------------------------------------------------------------------------------------------- fun facts
+  /** Death message key ("attack.lava", "fell.accident.ladder"...) -> a family with a translated name. */
+  const DEATH_CAUSES = [
+    ['lava', /lava/], ['fire', /infire|onfire|hotfloor|campfire/], ['fall', /^fell|^attack\.fall|flykillintowall|stalagmite/],
+    ['drown', /drown/], ['explosion', /explosion|fireworks|badrespawnpoint/], ['player', /^attack\.player/],
+    ['void', /outofworld|outsideborder/], ['starve', /starve/], ['cactus', /cactus|sweetberry/], ['suffocate', /inwall|cramming/],
+    ['freeze', /freeze/], ['lightning', /lightning/], ['magic', /magic|wither|dragonbreath/], ['anvil', /anvil|fallingblock|fallingstalactite/],
+    ['mob', /^attack\.(mob|arrow|trident|thrown|fireball|sting|sonic|mace|witherskull|spit|thorns)/],
+  ];
+  function deathCause(k) {
+    for (const [c, re] of DEATH_CAUSES) if (re.test(k)) return c;
+    return 'other';
+  }
+  function causes(map) {
+    const out = {};
+    for (const k in map || {}) { const c = deathCause(k); out[c] = (out[c] || 0) + map[k]; }
+    return entries(out);
+  }
+  function funCards(g, list) {
+    const n = mergeN(list), ev = sumMap(list, 'ev'), st = sumMap(list, 'st'), cls = sumMap(list, 'cls');
+    const act = sum(list, (d) => d.a), afk = sum(list, (d) => d.k);
+    const deaths = ev.death || 0;
+    const seen = n.dm || 0, mine = n.dmMe || 0;
+    const facts = [];
+    if (seen) {
+      const p = mine / seen;
+      facts.push({ icon: 'skull', label: t('fun.dmTitle'), value: pct(mine, seen), sub: t('fun.dm', { mine: num(mine), seen: num(seen) })
+        + (seen >= 5 ? ' ' + t(mine === 0 ? 'fun.dm0' : p >= 0.5 ? 'fun.dmHigh' : p <= 0.1 ? 'fun.dmLow' : 'fun.dmMid') : '') });
+    }
+    const myCauses = causes(n.dmkMe), allCauses = causes(n.dmk);
+    if (myCauses.length) facts.push({ icon: 'flame', label: t('fun.cause'), value: t('dc.' + myCauses[0][0]), sub: t('u.times', { n: num(myCauses[0][1]) }) });
+    if (allCauses.length && seen > mine) facts.push({ icon: 'globe', label: t('fun.killer'), value: t('dc.' + allCauses[0][0]), sub: t('fun.killerSub', { n: num(allCauses[0][1]) }) });
+    if (deaths && act) facts.push({ icon: 'clock', label: t('fun.deathEvery'), value: dur(act / deaths), sub: t('fun.deathEverySub') });
+    const jumpM = (n.jump || 0) * 1.25;
+    if (jumpM >= 10) facts.push({ icon: 'boot', label: t('fun.jumps'), value: num(jumpM) + ' m', sub: t('fun.jumpsSub', { n: num(jumpM / 330, jumpM < 3300 ? 1 : 0) }) });
+    if (afk >= 600000) facts.push({ icon: 'bed', label: t('fun.afk'), value: dur(afk), sub: t('fun.afkSub', { n: num(afk / 7.2e6, afk < 7.2e7 ? 1 : 0) }) });
+    const inv = (st.INVENTORY || 0) + (st.CONTAINER || 0);
+    if (inv >= 60000) facts.push({ icon: 'chest', label: t('fun.inv'), value: dur(inv), sub: t('fun.invSub', { p: pct(inv, act) }) });
+    if ((st.PAUSE || 0) >= 60000) facts.push({ icon: 'book', label: t('fun.pause'), value: dur(st.PAUSE), sub: t('fun.pauseSub') });
+    if ((cls.l || 0) >= 60000) facts.push({ icon: 'torch', label: t('fun.loading'), value: dur(cls.l), sub: t('fun.loadingSub', { n: num(cls.l / 3e5, 0) }) });
+    const meters = (n.mousePx || 0) * 0.0254 / 96;
+    if (meters >= 105) facts.push({ icon: 'compass', label: t('fun.mouse'), value: meters >= 1000 ? num(meters / 1000, 2) + ' km' : num(meters) + ' m', sub: t('fun.mouseSub', { n: num(meters / 105, meters < 1050 ? 1 : 0) }) });
+    if ((n.keys || 0) >= 2000) facts.push({ icon: 'key', label: t('fun.keys'), value: compact(n.keys), sub: t('fun.keysSub', { n: num(n.keys / 1800) }) });
+    if ((n.chatSeen || 0) >= 20 && (n.chat || 0) > 0) {
+      const r = n.chatSeen / n.chat;
+      facts.push({ icon: 'book', label: t('fun.reader'), value: num(r, r < 10 ? 1 : 0) + ' : 1', sub: t(r >= 5 ? 'fun.readerQuiet' : r <= 1.5 ? 'fun.readerChatty' : 'fun.readerMid') });
+    }
+    if ((n.hungryMs || 0) >= 60000) facts.push({ icon: 'star', label: t('fun.hungry'), value: dur(n.hungryMs), sub: t('fun.hungrySub') });
+    if ((n.fireMs || 0) >= 10000) facts.push({ icon: 'flame', label: t('fun.fire'), value: dur(n.fireMs), sub: t('fun.fireSub') });
+    card(g, {
+      icon: 'star', title: t('fun.title'), sub: t('fun.sub'), full: true,
+      render: (host) => {
+        if (!facts.length) { C.empty(host, t('ui.noLive')); return; }
+        host.innerHTML = '';
+        tiles(host, facts);
+        host.querySelector('.tiles').classList.add('fun-tiles');
+      },
+    });
+    if (seen || myCauses.length) {
+      const items = (map) => map.map(([k, v], i) => ({ label: t('dc.' + k), value: v, color: slot(i) }));
+      card(g, {
+        icon: 'skull', title: t('fun.causes'), sub: t('fun.causesSub'), wide: true,
+        render: (host) => C.hbars(host, { items: items(myCauses), fmt: (v) => num(v), limit: 10, emptyText: t('fun.noDeath') }),
+        table: () => ({ head: [t('fun.causeCol'), t('fun.you'), t('fun.everyone')], rows: allCauses.map(([k, v]) => [t('dc.' + k), num((myCauses.find((x) => x[0] === k) || [0, 0])[1]), num(v)]) }),
+      });
+      card(g, {
+        icon: 'globe', title: t('fun.killers'), sub: t('fun.killersSub'),
+        render: (host) => C.hbars(host, { items: items(allCauses), fmt: (v) => num(v), limit: 8, emptyText: t('ui.noLive') }),
+      });
+    }
   }
 
   // ---------------------------------------------------------------------------------------------- backup

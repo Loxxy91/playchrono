@@ -8,7 +8,7 @@ One file per game launch, one JSON object per line, append-only (crash-safe, no 
 |---|---|---|
 | `start` | game launched | `ts` (JVM start), `mc`, `ldr`, `ldrv`, `mod`, `ns` (reflection namespace), `env` (OS, CPU, RAM, Java…), `mods` |
 | `seg` | a stretch of identical activity | `s` start ms, `d` duration ms, `st` state (see `probe/State.java`), `c` context (`server:host`, `world:Name`, `realm:Name`, `lan:Name`), `dm` dimension, `sc` screen class, `f:0` unfocused, `k:1` AFK |
-| `m` | counters for ≤ 1 min in one context | `s`, `e`, `c`, `dm`, `n` = counters (`keys`, `kc` per key code, `clickL`, `mousePx`, `mv` per movement mode, `bio`, `wx`, `tod`, `gm`, `fpsSum`/`fpsMs`/`fpsMin`/`fpsB`, `pingSum`/`pingMs`, `cmd`, `chat`, `shot`, `dmg`, `xpLevels`, `yMax`, `farMax`, `speedMax`, `hitch`…) |
+| `m` | counters for ≤ 1 min in one context | `s`, `e`, `c`, `dm`, `n` = counters (`keys`, `kc` per key code, `clickL`, `mousePx`, `mv` per movement mode, `bio`, `wx`, `tod`, `gm`, `fpsSum`/`fpsMs`/`fpsMin`/`fpsB`, `pingSum`/`pingMs`, `cmd`, `chat`, `chatSeen` (lines received), `dm` / `dmMe` (death messages seen / about you), `dmk` / `dmkMe` (same, per cause key such as `attack.lava`), `shot`, `dmg`, `xpLevels`, `yMax`, `farMax`, `speedMax`, `hitch`…) |
 | `ev` | point event | `k` = `boot`, `join`, `leave`, `dim`, `death` (+ coordinates), `disc` (+ reason), `afk` (+ duration), `hitch`, `milestone` |
 | `env` | client settings changed | `acct`, `lang`, `gpu`, `rd`, `fov`, `win`, `fs`, `packs`, `launched` |
 | `end` | clean shutdown | `ts`, `active` |

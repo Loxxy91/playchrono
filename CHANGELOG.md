@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Odd stats** (Overview): how many of the death messages you saw in chat were about you ("the public danger is
+  you"), your favourite way to die, what kills the most around you, how often you die, your jumps stacked in Eiffel
+  Towers, AFK time in films, hours sorting chests, pause-menu time, loading screens in coffee breaks, mouse distance in
+  football pitches, key presses in novel pages, lines read per message sent… in 10 languages. Two new charts: how you
+  die and what kills around you.
+- Received chat lines are now counted live (they used to come from imported logs only). Death messages are recognised
+  by their translation key, so it works in every language; only the cause key is kept, never names or text.
+
 - **Backups, so a new computer doesn't mean starting from zero**: set `backup.dir` (OneDrive, Google Drive, a USB
   stick…) and a `.zip` of all your stats is written there every day and when the game closes (`backup.keep`, 10 by
   default). You can also download a backup from the dashboard (bottom of the Overview), or run

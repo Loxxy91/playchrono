@@ -51,6 +51,15 @@ method Component.getString()
 class  ChatComponent            net.minecraft.client.gui.components.ChatComponent
 method ChatComponent.addMessage(net.minecraft.network.chat.Component)
 method ChatComponent.addClientSystemMessage(net.minecraft.network.chat.Component)
+# received chat: only counted, and only the translation key of death messages ("death.attack.lava") is kept
+field  ChatComponent.allMessages
+class  GuiMessage               net.minecraft.client.GuiMessage net.minecraft.client.multiplayer.chat.GuiMessage
+method GuiMessage.content()
+method Component.getContents()
+method Component.getSiblings()
+class  TranslatableContents     net.minecraft.network.chat.contents.TranslatableContents
+method TranslatableContents.getKey()
+method TranslatableContents.getArgs()
 
 # ---- multiplayer / singleplayer context -------------------------------------------------------
 class  ServerData               net.minecraft.client.multiplayer.ServerData

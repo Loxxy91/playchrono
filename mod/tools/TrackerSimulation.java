@@ -56,6 +56,10 @@ public class TrackerSimulation {
         wall += 3000; nanos += 3_000_000_000L;           // game frozen 3 s
         step(snap(State.PLAY, true, true));
         run(5_000, State.DEAD, true, true);
+        Snapshot msgs = snap(State.PLAY, true, true);       // chat: 5 lines received, 3 of them death messages
+        msgs.chatIn = 5;
+        msgs.deathMsgs = java.util.Arrays.asList("me|attack.lava", "|fell.accident.generic", "|attack.lava");
+        step(msgs);
         run(2_000, State.PLAY, true, true);
         tr.close(wall);
         log.close();
@@ -77,6 +81,13 @@ public class TrackerSimulation {
         check("command /home counted", Json.num(Json.map(n.get("cmd")).get("home"), 0) == 1);
         check("death counted", Json.num(Json.map(day.get("ev")).get("death"), 0) == 1);
         check("freeze counted", Json.num(n.get("hitch"), 0) == 1);
+        check("death messages seen (3), yours (1), by cause, lines read (5)", Json.num(n.get("dm"), 0) == 3 && Json.num(n.get("dmMe"), 0) == 1
+                && Json.num(Json.map(n.get("dmk")).get("attack.lava"), 0) == 2 && Json.num(Json.map(n.get("dmkMe")).get("attack.lava"), 0) == 1
+                && Json.num(n.get("chatSeen"), 0) == 5);
+        check("your death message recognised behind a server rank, not inside another name",
+                dev.playchrono.probe.GameProbe.isMe("Steve", "Steve") && dev.playchrono.probe.GameProbe.isMe("[VIP] Steve", "Steve")
+                        && dev.playchrono.probe.GameProbe.isMe("§c[Admin]§r Steve_", "Steve_") && !dev.playchrono.probe.GameProbe.isMe("Steve2", "Steve")
+                        && !dev.playchrono.probe.GameProbe.isMe("NotSteve", "Steve") && !dev.playchrono.probe.GameProbe.isMe(null, "Steve"));
         // 1166 PLAY probes * 0.25 block, minus the steps that follow a non-world or dead snapshot
         double sprint = Json.dbl(Json.map(n.get("mv")).get("sprint"), 0);
         check("sprint distance = " + sprint + " blocks (expected ~291)", Math.abs(sprint - 291) < 2);
