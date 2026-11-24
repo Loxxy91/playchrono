@@ -246,6 +246,11 @@ public class TrackerSimulation {
         check("backup dropped in restore/ is merged then moved to restore/done", dropped.size() == 1 && dropped.get(0).added == 1
                 && Files.exists(dir3.resolve("restore").resolve("done").resolve(zip.getFileName()))
                 && Json.num(Aggregator.run(dir3).me.get("active"), -1) == oldActive);
+        String home = System.getProperty("user.home"), sep = java.io.File.separator;
+        String shown = dev.playchrono.util.Config.display(home + sep + ".playchrono" + sep + "restore");
+        check("paths shown without the OS account name: " + shown, !shown.contains(home) && (shown.startsWith("%USERPROFILE%") || shown.startsWith("~"))
+                && dev.playchrono.util.Config.display(home + "X" + sep + "a").equals(home + "X" + sep + "a")
+                && dev.playchrono.util.Config.display("D:" + sep + "Backups").equals("D:" + sep + "Backups"));
         boolean rOk = true;
         for (String l : dev.playchrono.ui.Lang.SUPPORTED) { String m = dev.playchrono.ui.Lang.get(l, "restored", "12"); rOk &= m.contains("12") && !m.contains("{"); }
         check("\"backup restored\" chat message in 10 languages: " + dev.playchrono.ui.Lang.get("fr", "restored", "12"), rOk);

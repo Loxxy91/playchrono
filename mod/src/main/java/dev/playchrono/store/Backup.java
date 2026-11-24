@@ -207,12 +207,12 @@ public final class Backup {
         Map<String, Object> m = new LinkedHashMap<>();
         String[] problem = new String[1];
         Path dir = dir(cfg, dataDir, problem);
-        m.put("dir", dir == null ? "" : dir.toString());
+        m.put("dir", dir == null ? "" : Config.display(dir));
         String err = problem[0] != null ? problem[0] : dir != null ? state.str("backupError") : null;
         if (err != null) m.put("error", err);
         if (state.num("backupLast") > 0) m.put("last", state.num("backupLast"));
         if (state.num("backupDownload") > 0) m.put("download", state.num("backupDownload"));
-        m.put("restoreDir", dataDir.resolve("restore").toAbsolutePath().toString());
+        m.put("restoreDir", Config.display(dataDir.resolve("restore").toAbsolutePath()));
         if (state.get("restored") != null) m.put("restored", state.get("restored"));
         return m;
     }

@@ -67,6 +67,8 @@ public final class Dashboard {
         for (Map.Entry<String, java.util.function.Supplier<Object>> e : extras.entrySet()) {
             try { r.rollup.put(e.getKey(), e.getValue().get()); } catch (RuntimeException ignored) { /* optional */ }
         }
+        Map<String, Object> env = Json.map(r.rollup.get("env")); // no OS account name in what the page shows or exports
+        if (env != null && env.get("gameDir") != null) env.put("gameDir", dev.playchrono.util.Config.display(env.get("gameDir")));
         String j = Json.write(r.rollup);
         try {
             Files.createDirectories(dir);

@@ -69,6 +69,20 @@ public final class Config {
         load();
     }
 
+    /**
+     * A path for display or export: the user's home folder (which holds the OS account name) becomes
+     * %USERPROFILE% on Windows (pastable in the Explorer address bar) or ~ elsewhere, so screenshots stay anonymous.
+     */
+    public static String display(Object path) {
+        if (path == null) return null;
+        String p = path.toString(), home = System.getProperty("user.home", "");
+        if (home.length() < 3) return p;
+        boolean win = System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT).contains("win");
+        boolean under = win ? p.toLowerCase(java.util.Locale.ROOT).startsWith(home.toLowerCase(java.util.Locale.ROOT)) : p.startsWith(home);
+        if (!under || (p.length() > home.length() && "/\\".indexOf(p.charAt(home.length())) < 0)) return p;
+        return (win ? "%USERPROFILE%" : "~") + p.substring(home.length());
+    }
+
     public static Path dataDir() {
         String p = System.getProperty("playchrono.dir");
         if (p == null || p.isEmpty()) p = System.getenv("PLAYCHRONO_DIR");
